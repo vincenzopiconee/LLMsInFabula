@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "179744805366",
+    "project_id": "llminfabula-1",
+    "storage_bucket": "llminfabula-1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179744805366:android:54a69ade7df2d65d24b7d7",
+        "android_client_info": {
+          "package_name": "com.example.llm_in_fabula"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQeL5tu_H0VtKlYBLbcSHkY7Vch9B7vvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
