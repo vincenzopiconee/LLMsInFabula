@@ -2,8 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../services/tts_manager.dart';
+
 // Spostiamo qui la costante così è accessibile a tutte le pagine
 const String kDatabaseUrl = 'https://llminfabula-1-default-rtdb.europe-west1.firebasedatabase.app';
+
+bool _isVoluntaryExit = false;
+bool _isRoomClosedHandling = false;
+
+/// Resets exit state for a fresh game/lobby.
+void resetExitFlags() {
+  _isVoluntaryExit = false;
+  _isRoomClosedHandling = false;
+}
+
+/// Marks that the local user chose to exit/close the room.
+void markVoluntaryExit() {
+  _isVoluntaryExit = true;
+  _isRoomClosedHandling = true;
+  Future.delayed(const Duration(seconds: 4), () {
+    _isVoluntaryExit = false;
+    _isRoomClosedHandling = false;
+  });
+}
+
+/// Safely handles room closed notification without looping or double-notifying.
+void onRoomClosed(BuildContext context) {
+  // If the user exited voluntarily, do not show "The lobby has been closed by the host."
+  if (_isVoluntaryExit || _isRoomClosedHandling) return;
+  _isRoomClosedHandling = true;
+
+  Future.delayed(const Duration(seconds: 4), () {
+    _isRoomClosedHandling = false;
+    _isVoluntaryExit = false;
+  });
+
+  if (!context.mounted) return;
+
+  ttsManager.stop();
+  Navigator.of(context).popUntil((route) => route.isFirst);
+
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("The lobby has been closed by the host."),
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: 2),
+    ),
+  );
+}
 
 /// Gestisce l'uscita dalla partita (sia per Admin che per User)
 Future<void> handleExit({
@@ -16,7 +63,10 @@ Future<void> handleExit({
   
   // Se la stanza non esiste più, usciamo direttamente
   if (!snapshot.exists) {
-    if (context.mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
     return;
   }
 
@@ -52,6 +102,9 @@ Future<void> handleExit({
 
   if (shouldExit != true) return;
 
+  markVoluntaryExit();
+  ttsManager.stop();
+
   // 3. Esecuzione logica DB
   if (amIAdmin) {
     // Se sei Admin, cancella tutta la stanza (Nuke)
@@ -62,6 +115,7 @@ Future<void> handleExit({
   }
 
   if (context.mounted) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     // Torna alla schermata iniziale rimuovendo le schermate intermedie
     Navigator.of(context).popUntil((route) => route.isFirst);
   }

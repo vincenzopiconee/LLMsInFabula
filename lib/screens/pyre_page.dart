@@ -83,7 +83,7 @@ class _PyreScreenState extends State<PyreScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (context.mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+                  if (context.mounted) onRoomClosed(context);
                 });
                 return const Center(child: CircularProgressIndicator());
               }

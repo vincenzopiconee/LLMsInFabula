@@ -48,6 +48,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '179744805366',
     projectId: 'llminfabula-1',
     authDomain: 'llminfabula-1.firebaseapp.com',
+    databaseURL: 'https://llminfabula-1-default-rtdb.firebaseio.com',
     storageBucket: 'llminfabula-1.firebasestorage.app',
     measurementId: 'G-4BWMZ55FBF',
   );

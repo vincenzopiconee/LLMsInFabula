@@ -1,15 +1,29 @@
 import 'firebase_options.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_page.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Firebase App Check — required for Firebase AI Logic.
+  await FirebaseAppCheck.instance.activate(
+    providerWeb: kDebugMode
+        ? WebDebugProvider()
+        : ReCaptchaEnterpriseProvider('6Lc9nfUtAAAAAIZhxsNVXLhQqq-Oem37m5Z410PC'),
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode
+        ? const AppleDebugProvider()
+        : const AppleDeviceCheckProvider(),
   );
 
   await SystemChrome.setPreferredOrientations([   //keeps phone always upright

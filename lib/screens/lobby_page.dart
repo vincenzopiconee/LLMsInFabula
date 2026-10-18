@@ -28,6 +28,7 @@ class _LobbyPageState extends State<LobbyPage> {
   @override
   void initState() {
     super.initState();
+    resetExitFlags();
     _roomRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
       databaseURL: kDatabaseUrl,
@@ -96,14 +97,7 @@ class _LobbyPageState extends State<LobbyPage> {
             if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("The lobby has been closed by the host."), 
-                      backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
-                      )
-                  );
+                  onRoomClosed(context);
                 }
               });
               return const Center(child: CircularProgressIndicator(color: Colors.white));

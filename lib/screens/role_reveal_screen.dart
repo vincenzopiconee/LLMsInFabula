@@ -52,13 +52,9 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
 
   void _listenForRoomDeletion() {
     _roomSubscription = _roomRef.onValue.listen((event) {
-      if (event.snapshot.value == null) {
-        if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("The lobby has been closed by the host."), backgroundColor: Colors.red),
-          );
-        }
+      if (event.snapshot.value == null && mounted) {
+        _roomSubscription?.cancel();
+        onRoomClosed(context);
       }
     });
   }

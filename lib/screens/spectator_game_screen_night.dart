@@ -81,10 +81,7 @@ class _SpectatorFormScreenState extends State<SpectatorFormScreeNight> {
             if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("La lobby è stata chiusa dall'host."), backgroundColor: Colors.red),
-                  );
+                  onRoomClosed(context);
                 }
               });
               return const Center(child: CircularProgressIndicator(color: Colors.white));

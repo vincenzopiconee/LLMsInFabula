@@ -44,8 +44,8 @@ class _MediumWakeUpScreenState extends State<MediumWakeUpScreen> {
   void _listenForRoomDeletion() {
     _roomSubscription = _roomRef.onValue.listen((event) {
       if (event.snapshot.value == null && mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Room closed."), backgroundColor: Colors.red));
+        _roomSubscription?.cancel();
+        onRoomClosed(context);
       }
     });
   }

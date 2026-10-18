@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io'; 
 import '../functions/functions.dart';
 import '../services/ai_story_generator.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -31,7 +30,8 @@ class _IntroGamePageState extends State<IntroGamePage> {
   // --- NUOVI STATI PER SINCRONIZZAZIONE ---
 
   bool _isAudioLoading = false; 
-  File? _readyAudioFile;
+  String? _readyAudioFile;
+  bool _audioProcessed = false;
   
   // ----------------------------------------
 
@@ -115,7 +115,7 @@ class _IntroGamePageState extends State<IntroGamePage> {
       ttsManager.toggleMute();
       // Se abbiamo smutato (isMuted è falso) e il file esiste, fallo ripartire
       if (!ttsManager.isMuted && _readyAudioFile != null) {
-        ttsManager.playAudioFile(_readyAudioFile!);
+        ttsManager.playAudioPath(_readyAudioFile);
       }
     });
   }
@@ -152,8 +152,7 @@ class _IntroGamePageState extends State<IntroGamePage> {
             if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                  if (context.mounted) {
-                   ttsManager.stop();
-                   Navigator.of(context).popUntil((route) => route.isFirst);
+                   onRoomClosed(context);
                  }
               });
               return const Center(child: CircularProgressIndicator());
@@ -172,44 +171,44 @@ class _IntroGamePageState extends State<IntroGamePage> {
             
             final Map? stories = data['generated_stories'] as Map?;
             final String? aiIntroText = stories?['intro'];
-            final bool isStoryReady = aiIntroText != null && aiIntroText.isNotEmpty;
+            final String? narratorError = stories?['narrator_error'];
+            final bool isStoryReady = aiIntroText != null && aiIntroText.isNotEmpty && !aiIntroText.startsWith('⚠️');
+            final bool hasNarratorError = narratorError != null || (aiIntroText?.startsWith('⚠️') ?? false);
             final bool amIAdmin = widget.uid == adminId;
 
             // --- LOGICA SINCRONIZZAZIONE AUDIO + TESTO (PER TUTTI) ---
-            // Rimosso controllo 'amIAdmin': ora tutti scaricano l'audio
-            if (isStoryReady && !_isAudioLoading && _readyAudioFile == null) {
-              
+            if (isStoryReady && !_isAudioLoading && !_audioProcessed) {
               _isAudioLoading = true; 
               
               WidgetsBinding.instance.addPostFrameCallback((_) async {
-                // Scarica per TUTTI (Sync dei tempi di attesa)
-                File? audioFile = await ttsManager.generateAudioFile(aiIntroText, narratorStyle);
+                String? audioFile = await ttsManager.generateAudioFile(aiIntroText, narratorStyle);
                 
                 if (context.mounted) {
                   setState(() {
                     _readyAudioFile = audioFile; 
-                    _isAudioLoading = false;     
+                    _isAudioLoading = false;
+                    _audioProcessed = true;
                   });
 
-                  // Il controllo mute ora è globale dentro ttsManager o qui
                   if (audioFile != null && !ttsManager.isMuted) {
-                    ttsManager.playAudioFile(audioFile); 
+                    ttsManager.playAudioPath(audioFile); 
                   }
-                  // Il testo parte sempre
                   _startTypewriter(aiIntroText); 
                 }
               });
             }
 
-            // --- GESTIONE STATI DI CARICAMENTO ---
+            // --- GESTIONE STATI DI CARICAMENTO / ERRORE ---
             bool showLoading = false;
             String loadingMessage = "";
 
-            if (!isStoryReady) {
+            if (hasNarratorError) {
+              showLoading = true;
+              loadingMessage = "⚠️ Narrator error:\n${narratorError ?? 'Unknown error'}\n\nThe game will continue without narration.";
+            } else if (!isStoryReady) {
               showLoading = true;
               loadingMessage = _isGenerating ? "The narrator is writing..." : "Waiting for the narrator...";
-            } else if (_isAudioLoading || _readyAudioFile == null) {
-              // Ora tutti vedono questo messaggio mentre l'audio carica
+            } else if (_isAudioLoading) {
               showLoading = true;
               loadingMessage = "The narrator is clearing their throat...";
             }

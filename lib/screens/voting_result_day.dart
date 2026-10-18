@@ -1,5 +1,4 @@
 import 'dart:async'; 
-import 'dart:io'; 
 import '../services/ai_story_generator.dart'; 
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -32,7 +31,8 @@ class _VotingResultDayState extends State<VotingResultDay> {
 
   // --- STATI SINCRONIZZAZIONE ---
   bool _isAudioLoading = false; 
-  File? _readyAudioFile;        
+  String? _readyAudioFile;        
+  bool _audioProcessed = false;        
   // RIMOSSO _isMuted locale
   // ---------------------------------------------
 
@@ -101,7 +101,7 @@ class _VotingResultDayState extends State<VotingResultDay> {
     setState(() {
       ttsManager.toggleMute();
       if (!ttsManager.isMuted && _readyAudioFile != null) {
-        ttsManager.playAudioFile(_readyAudioFile!);
+        ttsManager.playAudioPath(_readyAudioFile);
       }
     });
   }
@@ -221,11 +221,7 @@ class _VotingResultDayState extends State<VotingResultDay> {
             if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
-                  ttsManager.stop();
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("The lobby has been closed by the host."), backgroundColor: Colors.red),
-                  );
+                  onRoomClosed(context);
                 }
               });
               return const Center(child: CircularProgressIndicator());
@@ -244,7 +240,9 @@ class _VotingResultDayState extends State<VotingResultDay> {
             
             final Map? stories = data['generated_stories'] as Map?;
             final String? aiStoryText = stories?['current_story']; 
-            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty;
+            final String? narratorError = stories?['narrator_error'];
+            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty && !aiStoryText.startsWith('⚠️');
+            final bool hasNarratorError = narratorError != null || (aiStoryText?.startsWith('⚠️') ?? false);
             // ------------------------------------------------
 
             final adminId = data['adminId'];
@@ -252,35 +250,39 @@ class _VotingResultDayState extends State<VotingResultDay> {
             final bool isHost = (adminId == widget.uid);
 
             // --- LOGICA SINCRONIZZAZIONE ---
-            if (isStoryReady && !_isAudioLoading && _readyAudioFile == null) {
+            if (isStoryReady && !_isAudioLoading && !_audioProcessed) {
               _isAudioLoading = true;
               
               WidgetsBinding.instance.addPostFrameCallback((_) async {
-                File? audioFile = await ttsManager.generateAudioFile(aiStoryText, narratorStyle);
+                String? audioFile = await ttsManager.generateAudioFile(aiStoryText, narratorStyle);
                 
                 if (context.mounted) {
                   setState(() {
                     _readyAudioFile = audioFile;
                     _isAudioLoading = false;
+                    _audioProcessed = true;
                   });
 
                   // Usa singleton mute check
                   if (audioFile != null && !ttsManager.isMuted) {
-                    ttsManager.playAudioFile(audioFile);
+                    ttsManager.playAudioPath(audioFile);
                   }
                   _startTypewriter(aiStoryText);
                 }
               });
             }
 
-            // --- GESTIONE STATI DI CARICAMENTO ---
+            // --- GESTIONE STATI DI CARICAMENTO / ERRORE ---
             bool showLoading = false;
             String loadingMessage = "";
 
-            if (!isStoryReady) {
+            if (hasNarratorError) {
+              showLoading = true;
+              loadingMessage = "⚠️ Narrator error:\n${narratorError ?? 'Unknown error'}\n\nThe game will continue without narration.";
+            } else if (!isStoryReady) {
               showLoading = true;
               loadingMessage = _isGenerating ? "The narrator is judging..." : "Waiting for the verdict...";
-            } else if (_isAudioLoading || _readyAudioFile == null) {
+            } else if (_isAudioLoading) {
               showLoading = true;
               loadingMessage = "The narrator is clearing their throat...";
             }

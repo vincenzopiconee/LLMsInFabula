@@ -50,8 +50,8 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
     _roomSubscription = _roomRef.onValue.listen((event) {
       if (event.snapshot.value == null) {
         if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Room closed."), backgroundColor: Colors.red));
+          _roomSubscription?.cancel();
+          onRoomClosed(context);
         }
         return;
       }

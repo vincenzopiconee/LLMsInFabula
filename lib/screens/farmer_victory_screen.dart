@@ -1,5 +1,4 @@
 import 'dart:async'; 
-import 'dart:io'; 
 import '../services/ai_story_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -27,7 +26,8 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
 
   // --- STATI PER SINCRONIZZAZIONE AUDIO/TESTO ---
   bool _isAudioLoading = false; 
-  File? _readyAudioFile;        
+  String? _readyAudioFile;        
+  bool _audioProcessed = false;        
   // ---------------------------------------------
 
   // --- TYPEWRITER ---
@@ -94,7 +94,7 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
     setState(() {
       ttsManager.toggleMute();
       if (!ttsManager.isMuted && _readyAudioFile != null) {
-        ttsManager.playAudioFile(_readyAudioFile!);
+        ttsManager.playAudioPath(_readyAudioFile);
       }
     });
   }
@@ -136,14 +136,7 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
             if (snapshot.hasData && snapshot.data!.snapshot.value == null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) {
-                  ttsManager.stop(); // Stop audio on exit
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("The lobby has been closed by the host."),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  onRoomClosed(context);
                 }
               });
               return const Center(child: CircularProgressIndicator());
@@ -165,20 +158,21 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
             final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty;
 
             // --- LOGICA SINCRONIZZAZIONE ---
-            if (isStoryReady && !_isAudioLoading && _readyAudioFile == null) {
+            if (isStoryReady && !_isAudioLoading && !_audioProcessed) {
               _isAudioLoading = true;
               
               WidgetsBinding.instance.addPostFrameCallback((_) async {
-                File? audioFile = await ttsManager.generateAudioFile(aiStoryText, narratorStyle);
+                String? audioFile = await ttsManager.generateAudioFile(aiStoryText, narratorStyle);
                 
                 if (context.mounted) {
                   setState(() {
                     _readyAudioFile = audioFile;
                     _isAudioLoading = false;
+                    _audioProcessed = true;
                   });
 
                   if (audioFile != null && !ttsManager.isMuted) {
-                    ttsManager.playAudioFile(audioFile);
+                    ttsManager.playAudioPath(audioFile);
                   }
                   _startTypewriter(aiStoryText);
                 }
@@ -194,7 +188,7 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
               loadingMessage = _isGenerating 
                   ? "The narrator is celebrating..." 
                   : "Waiting for the happy ending...";
-            } else if (_isAudioLoading || _readyAudioFile == null) {
+            } else if (_isAudioLoading) {
               showLoading = true;
               loadingMessage = "The narrator is clearing their throat...";
             }
