@@ -1,154 +1,243 @@
 import 'package:flutter/material.dart';
-//import 'package:llm_in_fabula/screens/about_us.dart';
 import 'package:llm_in_fabula/screens/onboarding.dart';
 import 'create_room_page.dart';
 import 'join_room_page.dart';
 
 class HomePage extends StatelessWidget {
-
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-     
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      key: scaffoldKey,
       backgroundColor: colorScheme.primary,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         centerTitle: true,
-        elevation: 0, // Rimuove l'ombra per pulizia
-        title: const Text(
-          "Home",
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),           
-          onPressed: () {
-            scaffoldKey.currentState?.openDrawer();         
-          },
-        ),
+        elevation: 0,
+        title: const Text("Home"),
       ),
-
-      drawer: Drawer(
-        backgroundColor: colorScheme.primary,
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Menu',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: colorScheme.secondary),
-                ),
-              ),
-              const Divider(color: Colors.grey),
-              
-              ListTile(
-                leading: Icon(Icons.book, color: colorScheme.secondary),
-                title: Text('Guide', style: TextStyle(color: colorScheme.secondary)),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => OnboardingScreen()));
-                },
-              ),
-              /*
-              ListTile(
-                leading: Icon(Icons.info_outline, color: colorScheme.secondary),
-                title: Text('About Us', style: TextStyle(color: colorScheme.secondary)),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AboutUsPage()));
-                },
-              ),
-              */
-            ],
-          ),
-        ),
-      ),
-
       body: SafeArea(
-        // 1. FORZA LA LARGHEZZA MASSIMA per garantire il centramento orizzontale
-        child: SizedBox(
-          width: double.infinity, 
-          child: Column(
-            // 2. Allinea tutto al centro
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              
-              // Spacer superiore per bilanciare il layout verticale
-              const Spacer(flex: 2),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 740;
 
-              // LOGO (Dimensioni fisse richieste)
-              const Image(
-                image: AssetImage('assets/images/logo.png'),
-                width: 200, 
-                height: 200,
-                fit: BoxFit.contain,
-              ),
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // LOGO
+                      Image(
+                        image: const AssetImage('assets/images/logo.png'),
+                        width: isWide ? 220 : 180,
+                        height: isWide ? 220 : 180,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 20),
 
-              // Distanza Logo - Titolo (ex SizedBox 50 -> Flex 5)
-              const Spacer(flex: 5),
+                      // TITOLO
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          isWide ? "LLMs in Fabula" : "LLMs \nin Fabula",
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontSize: isWide ? 56 : 46,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onPrimary,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
 
-              // TITOLO (Dimensione 60)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  "LLMs \nin Fabula",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 60,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                      SizedBox(height: isWide ? 48 : 36),
+
+                      // PULSANTI DI AZIONE PRINCIPALI
+                      if (isWide)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildActionButton(
+                              context: context,
+                              icon: Icons.add_circle_outline_rounded,
+                              label: "Create Game",
+                              subtitle: "Host room & choose narrator",
+                              width: 300,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => CreateRoomPage()),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 24),
+                            _buildActionButton(
+                              context: context,
+                              icon: Icons.login_rounded,
+                              label: "Join Game",
+                              subtitle: "Enter code to play with friends",
+                              width: 300,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => JoinRoomPage()),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            _buildActionButton(
+                              context: context,
+                              icon: Icons.add_circle_outline_rounded,
+                              label: "Create Game",
+                              subtitle: "Host room & choose narrator",
+                              width: 300,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => CreateRoomPage()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildActionButton(
+                              context: context,
+                              icon: Icons.login_rounded,
+                              label: "Join Game",
+                              subtitle: "Enter code to play with friends",
+                              width: 300,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => JoinRoomPage()),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                      const SizedBox(height: 30),
+
+                      // PULSANTE GUIDA & REGOLE (bianco come gli altri per coerenza di stile)
+                      SizedBox(
+                        width: isWide ? 300 : 270,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.secondary,
+                            foregroundColor: colorScheme.onSecondary,
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => OnboardingScreen()),
+                            );
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.menu_book_rounded,
+                                size: 26,
+                                color: colorScheme.onSecondary,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                "How to Play & Role Rules",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-              // Distanza Titolo - Primo Bottone (ex SizedBox 100 -> Flex 10)
-              const Spacer(flex: 10),
+  Widget _buildActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required double width,
+    required VoidCallback onPressed,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-              // Create Game Button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25)
-                ),
-                child: const Text(
-                  "Create Game",
-                  style: TextStyle(fontSize: 25),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => CreateRoomPage()),
-                  );
-                },
-              ),
-
-              // Distanza tra i bottoni (ex SizedBox 20 -> Flex 2)
-              const Spacer(flex: 2),
-
-              // Join Game Button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25)
-                ),
-                child: const Text(
-                  "Join Game",
-                  style: TextStyle(fontSize: 25),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => JoinRoomPage()),
-                  );
-                },
-              ),
-
-              // Spacer inferiore (ex SizedBox 60 -> Flex 6)
-              const Spacer(flex: 3),
-            ],
+    return SizedBox(
+      width: width,
+      height: 82,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.secondary,
+          foregroundColor: colorScheme.onSecondary,
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          children: [
+            Icon(icon, size: 30, color: colorScheme.onSecondary),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSecondary.withValues(alpha: 0.85),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

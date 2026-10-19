@@ -265,99 +265,104 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
                   });
 
                   return SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          
-                          // --- NUOVO TIMER DINAMICO ---
-                          PyreTimerWidget(
-                            roomId: widget.roomId, 
-                            uid: widget.uid, 
-                            onTimerEnd: _handleTimerEnd, // Collega la logica di fine tempo
-                          ),
-
-                          const SizedBox(height: 40),
-
-                          Stack(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
                             children: [
-                              Positioned(top: 6, child: Text('PYRE\n Session', style: TextStyle(fontSize: 57, fontWeight: FontWeight.w900, foreground: Paint()..color = const Color.fromARGB(255, 205, 7, 7), letterSpacing: 1), textAlign: TextAlign.center)),
-                              Text('PYRE\n Session', style: TextStyle(fontSize: 56, fontWeight: FontWeight.w900, foreground: Paint()..color = const Color.fromARGB(255, 239, 151, 8), letterSpacing: 2), textAlign: TextAlign.center),
+                              const SizedBox(height: 16),
+                              
+                              // --- NUOVO TIMER DINAMICO ---
+                              PyreTimerWidget(
+                                roomId: widget.roomId, 
+                                uid: widget.uid, 
+                                onTimerEnd: _handleTimerEnd, // Collega la logica di fine tempo
+                              ),
+
+                              const SizedBox(height: 40),
+
+                              Stack(
+                                children: [
+                                  Positioned(top: 6, child: Text('PYRE\n Session', style: TextStyle(fontSize: 57, fontWeight: FontWeight.w900, foreground: Paint()..color = const Color.fromARGB(255, 205, 7, 7), letterSpacing: 1), textAlign: TextAlign.center)),
+                                  Text('PYRE\n Session', style: TextStyle(fontSize: 56, fontWeight: FontWeight.w900, foreground: Paint()..color = const Color.fromARGB(255, 239, 151, 8), letterSpacing: 2), textAlign: TextAlign.center),
+                                ],
+                              ),
+                        
+                              const SizedBox(height: 30),
+                              Text('Who do you want to\nkick out of the village?', style: textTheme.titleMedium!.copyWith(fontSize: 30, fontWeight: FontWeight.w500, color: colorScheme.onSecondary, height: 1.3), textAlign: TextAlign.center),
+                              const SizedBox(height: 40),
+
+                              // LISTA CANDIDATI AL BALLOTTAGGIO
+                              if (!_hasVoted)
+                                Expanded(
+                                  child: Scrollbar(
+                                    thumbVisibility: true,
+                                    child: ListView.builder(
+                                      itemCount: runoffCandidates.length,
+                                      itemBuilder: (context, index) {
+                                        final player = runoffCandidates[index];
+                                        final isSelected = selectedPlayerUid == player['uid'];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 12.0, right: 8),
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: isSelected ? Colors.grey[400] : colorScheme.primary,
+                                              foregroundColor: isSelected ? colorScheme.secondary : colorScheme.onPrimary,
+                                              padding: const EdgeInsets.symmetric(vertical: 16),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                if (selectedPlayerUid == player['uid']) {
+                                                  selectedPlayerUid = null;
+                                                } else {
+                                                  selectedPlayerUid = player['uid'];
+                                                }
+                                              });
+                                            },
+                                            child: Text(player['name'], style: textTheme.titleMedium!.copyWith(fontSize: 22, fontWeight: FontWeight.w600, color: isSelected ? colorScheme.primary : colorScheme.onPrimary)),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                )
+                              else 
+                                const Spacer(),
+
+                              const SizedBox(height: 20),
+
+                              if (!_hasVoted)
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: selectedPlayerUid != null ? colorScheme.onSecondary : Colors.grey, 
+                                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                                      elevation: 0,
+                                    ),
+                                    onPressed: selectedPlayerUid != null ? () => _submitPyreVote(selectedPlayerUid!) : null,
+                                    child: Text(
+                                      'Confirm',
+                                      style: textTheme.titleMedium!.copyWith(fontSize: 24, fontWeight: FontWeight.w600, color: colorScheme.secondary),
+                                    ),
+                                  ),
+                                )
+                              else
+                                Column(
+                                  children: [
+                                    const CircularProgressIndicator(color: Colors.white),
+                                    const SizedBox(height: 20),
+                                    Text("$currentVotesCount / $totalAliveCount voted", style: TextStyle(color: colorScheme.onSecondary, fontStyle: FontStyle.italic, fontSize: 20)),
+                                  ],
+                                ),
+
+                              const SizedBox(height: 30),
                             ],
                           ),
-                    
-                          const SizedBox(height: 30),
-                          Text('Who do you want to\nkick out of the village?', style: textTheme.titleMedium!.copyWith(fontSize: 30, fontWeight: FontWeight.w500, color: colorScheme.onSecondary, height: 1.3), textAlign: TextAlign.center),
-                          const SizedBox(height: 40),
-
-                          // LISTA CANDIDATI AL BALLOTTAGGIO
-                          if (!_hasVoted)
-                            Expanded(
-                              child: Scrollbar(
-                                thumbVisibility: true,
-                                child: ListView.builder(
-                                  itemCount: runoffCandidates.length,
-                                  itemBuilder: (context, index) {
-                                    final player = runoffCandidates[index];
-                                    final isSelected = selectedPlayerUid == player['uid'];
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 12.0, right: 8),
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: isSelected ? Colors.grey[400] : colorScheme.primary,
-                                          foregroundColor: isSelected ? colorScheme.secondary : colorScheme.onPrimary,
-                                          padding: const EdgeInsets.symmetric(vertical: 16),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            if (selectedPlayerUid == player['uid']) {
-                                              selectedPlayerUid = null;
-                                            } else {
-                                              selectedPlayerUid = player['uid'];
-                                            }
-                                          });
-                                        },
-                                        child: Text(player['name'], style: textTheme.titleMedium!.copyWith(fontSize: 22, fontWeight: FontWeight.w600, color: isSelected ? colorScheme.primary : colorScheme.onPrimary)),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            )
-                          else 
-                            const Spacer(),
-
-                          const SizedBox(height: 20),
-
-                          if (!_hasVoted)
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: selectedPlayerUid != null ? colorScheme.onSecondary : Colors.grey, 
-                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
-                                  elevation: 0,
-                                ),
-                                onPressed: selectedPlayerUid != null ? () => _submitPyreVote(selectedPlayerUid!) : null,
-                                child: Text(
-                                  'Confirm',
-                                  style: textTheme.titleMedium!.copyWith(fontSize: 24, fontWeight: FontWeight.w600, color: colorScheme.secondary),
-                                ),
-                              ),
-                            )
-                          else
-                            Column(
-                              children: [
-                                const CircularProgressIndicator(color: Colors.white),
-                                const SizedBox(height: 20),
-                                Text("$currentVotesCount / $totalAliveCount voted", style: TextStyle(color: colorScheme.onSecondary, fontStyle: FontStyle.italic, fontSize: 20)),
-                              ],
-                            ),
-
-                          const SizedBox(height: 30),
-                        ],
+                        ),
                       ),
                     ),
                   );

@@ -232,8 +232,8 @@ class _RecapNightPageState extends State<RecapNightPage> {
             final Map? stories = data['generated_stories'] as Map?;
             final String? aiStoryText = stories?['current_story']; 
             final String? narratorError = stories?['narrator_error'];
-            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty && !aiStoryText.startsWith('⚠️');
             final bool hasNarratorError = narratorError != null || (aiStoryText?.startsWith('⚠️') ?? false);
+            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty && !hasNarratorError;
 
             final adminId = data['adminId'];
             final String currentState = data['state'] ?? '';
@@ -267,8 +267,12 @@ class _RecapNightPageState extends State<RecapNightPage> {
             String loadingMessage = "";
 
             if (hasNarratorError) {
-              showLoading = true;
-              loadingMessage = "⚠️ Narrator error:\n${narratorError ?? 'Unknown error'}\n\nThe game will continue without narration.";
+              showLoading = false;
+              if (_displayedText.isEmpty) {
+                _displayedText = (aiStoryText != null && !aiStoryText.startsWith('⚠️'))
+                    ? aiStoryText
+                    : "The narrator was momentarily lost for words...\nYou may continue with the game.";
+              }
             } else if (!isStoryReady) {
               showLoading = true;
               loadingMessage = _isGenerating ? "The narrator is writing..." : "Waiting for the narrator...";
@@ -310,163 +314,167 @@ class _RecapNightPageState extends State<RecapNightPage> {
             }
 
             return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Tonight...', 
-                      style: textTheme.titleLarge!.copyWith(
-                        fontSize: 45, 
-                        fontWeight: FontWeight.w700, 
-                        color: colorScheme.onSecondary
-                      ), 
-                      textAlign: TextAlign.center
-                    ),
-                    const Spacer(flex: 1),
-                    
-                    Container(
-                      width: 280,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: colorScheme.secondary,
-                          width: 3,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Tonight...', 
+                          style: textTheme.titleLarge!.copyWith(
+                            fontSize: 45, 
+                            fontWeight: FontWeight.w700, 
+                            color: colorScheme.onSecondary
+                          ), 
+                          textAlign: TextAlign.center
                         ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: const Image(
-                          image: AssetImage('assets/images/tonight.png'),
-                          fit: BoxFit.cover,
+                        const SizedBox(height: 12),
+                        
+                        Flexible(
+                          flex: 35,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: colorScheme.secondary,
+                                width: 3,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: const Image(
+                                image: AssetImage('assets/images/tonight.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    
-                    const Spacer(flex: 4),
-                    
-                    // BOX LLM 
-                    Expanded(
-                      flex: 40,
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary, 
-                          borderRadius: BorderRadius.circular(16)
-                        ),
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // --- HEADER ---
-                            Row(
+                        
+                        const SizedBox(height: 16),
+                        
+                        // BOX LLM 
+                        Expanded(
+                          flex: 65,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary, 
+                              borderRadius: BorderRadius.circular(16)
+                            ),
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.orange, width: 3),
-                                  ),
-                                  child: CircleAvatar(
-                                    radius: 26,
-                                    backgroundColor: Colors.grey[200],
-                                    backgroundImage: narratorAsset != null
-                                        ? AssetImage(narratorAsset)
-                                        : const AssetImage('assets/images/placeholder.png'),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    narratorStyle, 
-                                    style: textTheme.bodyMedium!.copyWith(
-                                      fontWeight: FontWeight.bold, 
-                                      fontSize: 20, color: colorScheme.onPrimary,
+                                // --- HEADER ---
+                                Row(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.orange, width: 3),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 26,
+                                        backgroundColor: Colors.grey[200],
+                                        backgroundImage: narratorAsset != null
+                                            ? AssetImage(narratorAsset)
+                                            : const AssetImage('assets/images/placeholder.png'),
+                                      ),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        narratorStyle, 
+                                        style: textTheme.bodyMedium!.copyWith(
+                                          fontWeight: FontWeight.bold, 
+                                          fontSize: 20, color: colorScheme.onPrimary,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    // --- PULSANTE MUTE GLOBALE ---
+                                    IconButton(
+                                      onPressed: _toggleMute,
+                                      icon: Icon(
+                                        ttsManager.isMuted ? Icons.volume_off : Icons.volume_up,
+                                        color: colorScheme.onPrimary,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                // --- PULSANTE MUTE GLOBALE ---
-                                IconButton(
-                                  onPressed: _toggleMute,
-                                  icon: Icon(
-                                    ttsManager.isMuted ? Icons.volume_off : Icons.volume_up,
-                                    color: colorScheme.onPrimary,
-                                    size: 24,
-                                  ),
+                                const SizedBox(height: 16),
+
+                                Expanded(
+                                  child: showLoading
+                                      ? Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min, 
+                                            children: [
+                                              CircularProgressIndicator(color: colorScheme.onPrimary), 
+                                              const SizedBox(height: 10), 
+                                              Text(
+                                                loadingMessage, 
+                                                style: TextStyle(color: colorScheme.onPrimary, fontStyle: FontStyle.italic)
+                                              )
+                                            ]
+                                          )
+                                        )
+                                      : SingleChildScrollView(
+                                        controller: _scrollController,
+                                        child: Text(
+                                          _displayedText, 
+                                          style: textTheme.bodyMedium!.copyWith(
+                                            fontSize: 20, 
+                                            color: colorScheme.onPrimary, 
+                                            height: 1.4
+                                          )
+                                        )
+                                      ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-
-                            Expanded(
-                              child: showLoading
-                                  ? Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min, 
-                                        children: [
-                                          CircularProgressIndicator(color: colorScheme.onPrimary), 
-                                          const SizedBox(height: 10), 
-                                          Text(
-                                            loadingMessage, 
-                                            style: TextStyle(color: colorScheme.onPrimary, fontStyle: FontStyle.italic)
-                                          )
-                                        ]
-                                      )
-                                  )
-                                  : SingleChildScrollView(
-                                    controller: _scrollController,
-                                    child: Text(
-                                      _displayedText, 
-                                      style: textTheme.bodyMedium!.copyWith(
-                                        fontSize: 20, 
-                                        color: colorScheme.onPrimary, 
-                                        height: 1.4
-                                      )
-                                    )
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),         
-                    
-                    const Spacer(flex: 2),
-
-                    if (isHost)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.primary,
-                            // AGGIUNGI QUESTA RIGA:
-                            disabledBackgroundColor: colorScheme.primary.withAlpha(128) , // Esempio: stesso colore ma semi-trasparente
-                            // Oppure un colore fisso: Colors.grey.shade800
-                            
-                            // OPZIONALE: Cambia anche il colore del testo quando è disabilitato
-                            disabledForegroundColor: colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                            elevation: 0,
                           ),
-                          onPressed: (!showLoading) ? _checkWinConditionsAndProceed : null,
-                          child: Text(
-                            'Continue',
-                            style: textTheme.titleMedium!.copyWith(
-                              fontSize: 25,
-                              color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
+                        ),         
+                        
+                        const Spacer(flex: 4),
+
+                        if (isHost)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                disabledBackgroundColor: colorScheme.primary.withAlpha(128),
+                                disabledForegroundColor: colorScheme.onPrimary,
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
+                                elevation: 0,
                               ),
+                              onPressed: (!showLoading) ? _checkWinConditionsAndProceed : null,
+                              child: Text(
+                                'Continue',
+                                style: textTheme.titleMedium!.copyWith(
+                                  fontSize: 25,
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                             ),
-                        ),
-                      )
-                    else 
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Text("Waiting for host...", style: TextStyle(color: colorScheme.onSecondary, fontSize: 18, fontStyle: FontStyle.italic)),
-                      ),
-                  ],
+                          )
+                        else 
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: Text("Waiting for host...", style: TextStyle(color: colorScheme.onSecondary, fontSize: 18, fontStyle: FontStyle.italic)),
+                          ),
+                        const Spacer(flex: 2),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             );

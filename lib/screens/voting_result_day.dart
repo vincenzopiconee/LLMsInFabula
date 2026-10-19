@@ -241,8 +241,8 @@ class _VotingResultDayState extends State<VotingResultDay> {
             final Map? stories = data['generated_stories'] as Map?;
             final String? aiStoryText = stories?['current_story']; 
             final String? narratorError = stories?['narrator_error'];
-            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty && !aiStoryText.startsWith('⚠️');
             final bool hasNarratorError = narratorError != null || (aiStoryText?.startsWith('⚠️') ?? false);
+            final bool isStoryReady = aiStoryText != null && aiStoryText.isNotEmpty && !hasNarratorError;
             // ------------------------------------------------
 
             final adminId = data['adminId'];
@@ -277,8 +277,12 @@ class _VotingResultDayState extends State<VotingResultDay> {
             String loadingMessage = "";
 
             if (hasNarratorError) {
-              showLoading = true;
-              loadingMessage = "⚠️ Narrator error:\n${narratorError ?? 'Unknown error'}\n\nThe game will continue without narration.";
+              showLoading = false;
+              if (_displayedText.isEmpty) {
+                _displayedText = (aiStoryText != null && !aiStoryText.startsWith('⚠️'))
+                    ? aiStoryText
+                    : "The narrator was momentarily lost for words...\nYou may continue with the game.";
+              }
             } else if (!isStoryReady) {
               showLoading = true;
               loadingMessage = _isGenerating ? "The narrator is judging..." : "Waiting for the verdict...";
@@ -317,49 +321,53 @@ class _VotingResultDayState extends State<VotingResultDay> {
             }
 
             return SafeArea(
-              child: SizedBox.expand(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Results',
-                        style: textTheme.titleLarge!.copyWith(
-                          fontSize: 45,
-                          fontWeight: FontWeight.w700,
-                          color: colorScheme.onSecondary,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Results',
+                          style: textTheme.titleLarge!.copyWith(
+                            fontSize: 45,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.onSecondary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
 
-                      const Spacer(flex: 1),
+                        const SizedBox(height: 12),
 
-                      Container(
-                      width: 280,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: colorScheme.onSecondary,
-                          width: 3,
+                        Flexible(
+                          flex: 35,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: colorScheme.onSecondary,
+                                width: 3,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: const Image(
+                                image: AssetImage('assets/images/result.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: const Image(
-                          image: AssetImage('assets/images/result.png'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
 
-                      const Spacer(flex: 4),
+                        const SizedBox(height: 16),
 
-                      // --- BOX LLM SCROLLABILE ---
-                      Expanded(
-                        flex: 40, 
-                        child: Container(
+                        // --- BOX LLM SCROLLABILE ---
+                        Expanded(
+                          flex: 65, 
+                          child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: colorScheme.primary,
@@ -446,7 +454,7 @@ class _VotingResultDayState extends State<VotingResultDay> {
                         ),
                       ),   
 
-                      const Spacer(flex: 2),
+                      const Spacer(flex: 4),
 
                       if (isHost)
                         SizedBox(
@@ -482,13 +490,14 @@ class _VotingResultDayState extends State<VotingResultDay> {
                           ),
                         ),
 
-                      const Spacer(flex: 1),
+                      const Spacer(flex: 2),
                     ],
                   ),
                 ),
               ),
-            );
-          }
+            ),
+          );
+        }
         ),
       )
     );

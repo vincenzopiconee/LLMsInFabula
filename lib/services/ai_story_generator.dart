@@ -193,10 +193,10 @@ class AiStoryGenerator {
         targetNode = 'current_story';
       }
 
-      // Write both the fallback text AND the error reason into the DB
-      // so the game UI can display a meaningful diagnostic.
+      // Save a user-friendly story in the database so the UI flows naturally,
+      // while preserving the technical error in 'narrator_error' and the console.
       await roomRef.child("generated_stories").update({
-        targetNode: "⚠️ Narration unavailable.",
+        targetNode: "The narrator was momentarily lost for words...\nYou may continue the game.",
         'narrator_error': e.toString(),
       });
     }

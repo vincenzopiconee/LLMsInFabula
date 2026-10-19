@@ -172,8 +172,8 @@ class _IntroGamePageState extends State<IntroGamePage> {
             final Map? stories = data['generated_stories'] as Map?;
             final String? aiIntroText = stories?['intro'];
             final String? narratorError = stories?['narrator_error'];
-            final bool isStoryReady = aiIntroText != null && aiIntroText.isNotEmpty && !aiIntroText.startsWith('⚠️');
             final bool hasNarratorError = narratorError != null || (aiIntroText?.startsWith('⚠️') ?? false);
+            final bool isStoryReady = aiIntroText != null && aiIntroText.isNotEmpty && !hasNarratorError;
             final bool amIAdmin = widget.uid == adminId;
 
             // --- LOGICA SINCRONIZZAZIONE AUDIO + TESTO (PER TUTTI) ---
@@ -203,8 +203,12 @@ class _IntroGamePageState extends State<IntroGamePage> {
             String loadingMessage = "";
 
             if (hasNarratorError) {
-              showLoading = true;
-              loadingMessage = "⚠️ Narrator error:\n${narratorError ?? 'Unknown error'}\n\nThe game will continue without narration.";
+              showLoading = false;
+              if (_displayedText.isEmpty) {
+                _displayedText = (aiIntroText != null && !aiIntroText.startsWith('⚠️'))
+                    ? aiIntroText
+                    : "The narrator was momentarily lost for words...\nYou may continue with the game.";
+              }
             } else if (!isStoryReady) {
               showLoading = true;
               loadingMessage = _isGenerating ? "The narrator is writing..." : "Waiting for the narrator...";
@@ -233,54 +237,50 @@ class _IntroGamePageState extends State<IntroGamePage> {
             }
 
             return SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        'Once upon a time...',
-                        style: textTheme.titleLarge!.copyWith(fontSize: 40, color: colorScheme.onPrimary),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const Spacer(flex: 2),
-                    
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            'Once upon a time...',
+                            style: textTheme.titleLarge!.copyWith(fontSize: 40, color: colorScheme.onPrimary),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
 
-                    Flexible(
-                        flex: 35, 
-                        child: FittedBox(
-                          fit: BoxFit.contain,
+                        Flexible(
+                          flex: 35, 
                           child: Container(
-                            width: 280,
-                            height: 200,
+                            width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(color: colorScheme.secondary, width: 3),
-                              // SPOSTA L'IMMAGINE QUI DENTRO:
                               image: const DecorationImage(
                                 image: AssetImage('assets/images/screen_intro.jpg'),
-                                fit: BoxFit.fill, // Usa lo stesso fit che avevi prima
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            // Rimuovi il child ClipRRect, non serve più
                           ),
                         ),
-                      ),
 
-                    const Spacer(flex: 4),
+                        const SizedBox(height: 16),
 
-                    // Area Testo / Caricamento
-                    Expanded(
-                      flex: 65, 
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                        // Area Testo / Caricamento
+                        Expanded(
+                          flex: 65, 
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: colorScheme.secondary,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: colorScheme.secondary, width: 3),
+                            ),
                         padding: const EdgeInsets.all(18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,7 +393,9 @@ class _IntroGamePageState extends State<IntroGamePage> {
                   ],
                 ),
               ),
-            );
+            ),
+          ),
+        );
           },
         ),
       )
