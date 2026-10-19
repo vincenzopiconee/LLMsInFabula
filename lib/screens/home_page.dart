@@ -50,7 +50,7 @@ class HomePage extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: textTheme.bodyLarge?.copyWith(
                             fontSize: isWide ? 56 : 46,
-                            fontWeight: FontWeight.bold,
+                            //fontWeight: FontWeight.bold,
                             color: colorScheme.onPrimary,
                             letterSpacing: 1.5,
                           ),
@@ -228,7 +228,7 @@ class HomePage extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       color: colorScheme.onSecondary.withValues(alpha: 0.85),
                     ),
                     maxLines: 1,

@@ -253,6 +253,8 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
 
     int specialRolesCount = _gameRoles.values.reduce((a, b) => a + b);
     int villagers = _numPlayers - specialRolesCount;
@@ -268,7 +270,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             icon: Icon(Icons.arrow_back, color: colorScheme.onPrimary),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: const Text("Create Game"),
+          title: const Text("Create Game Room"),
           centerTitle: true,
         ),
         body: SafeArea(
@@ -276,9 +278,9 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 12.0),
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     _buildSpectatorSwitch(context),
                     const SizedBox(height: 20),
                     _buildNicknameField(context),
@@ -311,61 +313,92 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     );
   }
 
-  // ... (Widget _buildSpectatorSwitch, _buildNicknameField identici a prima) ...
   Widget _buildSpectatorSwitch(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("Spectator Mode", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary)),
+        Text(
+          "Spectator Mode",
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontSize: 19,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
         Switch(
           value: _isSpectator,
           onChanged: (val) => setState(() => _isSpectator = val),
-          activeTrackColor: Theme.of(context).colorScheme.secondary,
-          activeThumbColor: Theme.of(context).colorScheme.primary,
-          inactiveTrackColor: Theme.of(context).colorScheme.primary,
-          inactiveThumbColor: Theme.of(context).colorScheme.secondary,
+          activeTrackColor: theme.colorScheme.secondary,
+          activeThumbColor: theme.colorScheme.primary,
+          inactiveTrackColor: theme.colorScheme.primary,
+          inactiveThumbColor: theme.colorScheme.secondary,
         ),
       ],
     );
   }
 
   Widget _buildNicknameField(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Your Nickname", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary)),
-        const SizedBox(height:8),
-        TextField(
-        controller: nameController,
-        maxLength: 20, 
-        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
-          hintText: "Input",
-          hintStyle: TextStyle(color: Colors.grey.shade600),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        Text(
+          "Your Nickname",
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontSize: 19,
+            color: theme.colorScheme.onPrimary,
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: nameController,
+          maxLength: 20,
+          style: TextStyle(color: theme.colorScheme.onSecondary, fontSize: 16),
+          decoration: InputDecoration(
+            counterStyle: const TextStyle(color: Colors.white70),
+            filled: true,
+            fillColor: theme.colorScheme.surface,
+            hintText: "Nickname (max 20 chars)",
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildNumPlayersDropdown(BuildContext context) {
     final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSecondary, fontSize: 16);
+    final boxDecoration = BoxDecoration(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(10),
+    );
+    final textStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: theme.colorScheme.onSecondary,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("Num. Players", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary)),
+        Text(
+          "Number of Players",
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontSize: 19,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+          width: 55,
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: boxDecoration,
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: _numPlayers,
+              isExpanded: true,
               icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
               dropdownColor: theme.colorScheme.surface,
               style: textStyle,
@@ -380,6 +413,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
               items: _playerCountOptions.map<DropdownMenuItem<int>>((int value) {
                 return DropdownMenuItem<int>(
                   value: value,
+                  alignment: Alignment.center,
                   child: Text(value.toString()),
                 );
               }).toList(),
@@ -393,7 +427,13 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   Widget _buildGameRulesExpansionTile(BuildContext context) {
     final theme = Theme.of(context);
     return ExpansionTile(
-      title: Text("Game Roles", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18, color: theme.colorScheme.onPrimary)),
+      title: Text(
+        "Game Roles",
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: 19,
+          color: theme.colorScheme.onPrimary,
+        ),
+      ),
       iconColor: theme.colorScheme.onPrimary,
       collapsedIconColor: theme.colorScheme.onPrimary,
       tilePadding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -412,9 +452,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     );
   }
 
-  // --- WIDGET ROLE ROW MODIFICATO PER FILTRARE LE OPZIONI ---
-  Widget _buildRoleRow(
-    BuildContext context, String role, int currentValue, ValueChanged<int?> onChanged) {
+  Widget _buildRoleRow(BuildContext context, String role, int currentValue, ValueChanged<int?> onChanged) {
     final theme = Theme.of(context);
     final boxDecoration = BoxDecoration(
       color: theme.colorScheme.surface,
@@ -423,6 +461,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     final textStyle = theme.textTheme.bodyLarge?.copyWith(
       color: theme.colorScheme.onSecondary,
       fontSize: 16,
+      fontWeight: FontWeight.bold,
     );
 
     // 1. Calcola il massimo consentito per QUESTO ruolo specifico
@@ -432,18 +471,10 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     final List<int> baseOptions = (role == "Wolves") ? _werewolvesCountOptions : _roleCountOptions;
 
     // 3. Filtra la lista: mantieni solo i valori <= maxAllowed
-    // Esempio: se ho 4 giocatori e 1 lupo selezionato, per Doctor il max è 3.
-    // La lista [0,1,2,3,4,5,6] diventa [0,1,2,3].
     List<int> validOptions = baseOptions.where((val) => val <= maxAllowed).toList();
 
-    // Caso di sicurezza: Se per qualche motivo la lista è vuota o il valore corrente è fuori range
-    // (es. riduco giocatori totali drasticamente), ci assicuriamo che il valore corrente sia valido.
     if (!validOptions.contains(currentValue)) {
-      // Se il valore corrente è troppo alto, lo forziamo al massimo disponibile
-      // Nota: questo è un fix visivo, la logica di stato è gestita da _checkAndCapRoles
       if (currentValue > maxAllowed) {
-         // Aggiungiamo temporaneamente il valore corrente per evitare crash del Dropdown, 
-         // ma la logica _checkAndCapRoles lo correggerà al prossimo setState.
          validOptions.add(currentValue);
          validOptions.sort();
       }
@@ -462,19 +493,22 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            width: 55,
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: boxDecoration,
             child: DropdownButtonHideUnderline(
               child: DropdownButton<int>(
                 value: currentValue,
+                isExpanded: true,
                 icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
                 dropdownColor: theme.colorScheme.surface,
                 style: textStyle,
                 onChanged: onChanged,
-                // Usiamo la lista filtrata!
                 items: validOptions.map((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
+                    alignment: Alignment.center,
                     child: Text(value.toString()),
                   );
                 }).toList(),
@@ -486,11 +520,16 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     );
   }
 
-  // ... (Resto dei widget _buildTimeRulesExpansionTile, _buildTimeRow, _buildBottomBar, _buildNarratorExpansionTile identici) ...
   Widget _buildTimeRulesExpansionTile(BuildContext context) {
     final theme = Theme.of(context);
     return ExpansionTile(
-      title: Text("Time Rules", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18, color: theme.colorScheme.onPrimary)),
+      title: Text(
+        "Time Rules",
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: 19,
+          color: theme.colorScheme.onPrimary,
+        ),
+      ),
       iconColor: theme.colorScheme.onPrimary,
       collapsedIconColor: theme.colorScheme.onPrimary,
       tilePadding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -504,23 +543,42 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
 
   Widget _buildTimeRow(BuildContext context, String label, String currentValue, List<String> options, ValueChanged<String?> onChanged) {
     final theme = Theme.of(context);
+    final textStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: theme.colorScheme.onSecondary,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary, fontSize: 16)),
+          Text(
+            label,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onPrimary,
+              fontSize: 16,
+            ),
+          ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: currentValue,
-                icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.primary),
+                icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.primary),
                 dropdownColor: theme.colorScheme.surface,
-                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSecondary, fontSize: 16),
+                style: textStyle,
                 onChanged: onChanged,
-                items: options.map((String value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
+                items: options.map((String value) => DropdownMenuItem<String>(
+                  value: value,
+                  alignment: Alignment.center,
+                  child: Text(value),
+                )).toList(),
               ),
             ),
           ),
@@ -530,32 +588,55 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   }
 
   Widget _buildBottomBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25)),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      child: SizedBox(
+        width: 200,
+        height: 58,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.secondary,
+            foregroundColor: colorScheme.onSecondary,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
           onPressed: createRoom,
-          child: const Text("Create Game", style: TextStyle(fontSize: 25)),
+          child: Text(
+            "Create Game",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSecondary,
+            ),
+          ),
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildNarratorExpansionTile(BuildContext context) {
-     final theme = Theme.of(context);
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return ExpansionTile(
-      title: Text("Virtual Narrator", style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18, color: colorScheme.onPrimary)),
+      title: Text(
+        "Virtual Narrator",
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: 19,
+          color: colorScheme.onPrimary,
+        ),
+      ),
       iconColor: colorScheme.onPrimary,
       collapsedIconColor: colorScheme.onPrimary,
       tilePadding: const EdgeInsets.symmetric(vertical: 2.0),
       children: _narratorList.map((narrator) {
-      final String id = narrator['id'] as String;
-      final String desc = narrator['description'] as String;
-      final String assetPath = narrator['asset'] as String;
-      final bool isSelected = _llmNarrator == id;
+        final String id = narrator['id'] as String;
+        final String desc = narrator['description'] as String;
+        final String assetPath = narrator['asset'] as String;
+        final bool isSelected = _llmNarrator == id;
 
         return GestureDetector(
           onTap: () {
@@ -569,24 +650,47 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             decoration: BoxDecoration(
               color: isSelected ? colorScheme.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
-              border: isSelected ? Border.all(color: colorScheme.secondary, width: 2) : Border.all(color: Colors.transparent, width: 2),
+              border: isSelected
+                  ? Border.all(color: colorScheme.secondary, width: 2)
+                  : Border.all(color: Colors.transparent, width: 2),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start, 
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 24, backgroundColor: colorScheme.surface, backgroundImage: AssetImage(assetPath)),
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: colorScheme.surface,
+                  backgroundImage: AssetImage(assetPath),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(id, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onPrimary, fontSize: 16)),
+                      Text(
+                        id,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onPrimary,
+                          fontSize: 17,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(desc, style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onPrimary, fontStyle: FontStyle.italic, fontSize: 14)),
+                      Text(
+                        desc,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onPrimary,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                if (isSelected) Padding(padding: const EdgeInsets.only(left: 8.0, top: 10), child: Icon(Icons.check_circle, color: colorScheme.secondary))
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10),
+                    child: Icon(Icons.check_circle, color: colorScheme.secondary),
+                  )
               ],
             ),
           ),
