@@ -197,10 +197,27 @@ class _WerewolfWakeUpScreenState extends State<WerewolfWakeUpScreen> {
 
                 const SizedBox(height: 20),
                 SizedBox(
+                  width: 200,
+                  height: 58,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: _isVoteConfirmed ? Colors.grey : colorScheme.secondary, padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.secondary,
+                      foregroundColor: colorScheme.onSecondary,
+                      disabledBackgroundColor: Colors.grey,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                     onPressed: (selectedPlayerUid != null && !_isVoteConfirmed) ? _confirmVote : null,
-                    child: Text('Confirm', style: textTheme.titleMedium!.copyWith(fontSize: 24, color: colorScheme.onSecondary)),
+                    child: Text(
+                      'Confirm',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSecondary,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),

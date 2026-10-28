@@ -359,11 +359,17 @@ class _WerewolvesWinScreenState extends State<WerewolvesWinScreen> {
                       const Spacer(flex: 2),
 
                       SizedBox(
+                        width: 200,
+                        height: 58,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colorScheme.secondary,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                            elevation: 0,
+                            foregroundColor: colorScheme.onSecondary,
+                            disabledBackgroundColor: Colors.grey,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           // Disabilita Exit mentre carica
                           onPressed: (!showLoading) 
@@ -374,8 +380,9 @@ class _WerewolvesWinScreenState extends State<WerewolvesWinScreen> {
                             : null,
                           child: Text(
                             'Exit Game',
-                            style: textTheme.titleMedium!.copyWith(
+                            style: TextStyle(
                               fontSize: 24,
+                              fontWeight: FontWeight.bold,
                               color: colorScheme.onSecondary,
                             ),
                           ),

@@ -227,19 +227,26 @@ class _DiscussionTimePageState extends State<DiscussionTimePage> {
                   Column(
                     children: [
                       SizedBox(
+                        width: 220,
+                        height: 58,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _iAmReady ? colorScheme.secondary : colorScheme.primary, 
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-                            elevation: 0,
+                            foregroundColor: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
+                            disabledBackgroundColor: colorScheme.secondary,
+                            disabledForegroundColor: colorScheme.primary,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           onPressed: _iAmReady ? null : _setReadyForVoting,
                           child: Text(
                             _iAmReady ? 'Waiting others...' : 'Go to Voting',
-                            style: textTheme.titleMedium!.copyWith(
-                              fontSize: 24,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                               color: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),

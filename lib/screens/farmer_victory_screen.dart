@@ -325,11 +325,18 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
                       const Spacer(flex: 2),
 
                       SizedBox(
+                        width: 200,
+                        height: 58,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colorScheme.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                            elevation: 0,
+                            foregroundColor: colorScheme.onPrimary,
+                            disabledBackgroundColor: colorScheme.primary.withAlpha(128),
+                            disabledForegroundColor: colorScheme.onPrimary,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           // Disabilita Exit mentre carica, o lascialo abilitato se preferisci uscire subito
                           onPressed: (!showLoading) 
@@ -340,8 +347,9 @@ class _FarmersWinScreenState extends State<FarmersWinScreen> {
                             : null,
                           child: Text(
                             'Exit Game',
-                            style: textTheme.titleMedium!.copyWith(
+                            style: TextStyle(
                               fontSize: 24,
+                              fontWeight: FontWeight.bold,
                               color: colorScheme.onPrimary,
                             ),
                           ),

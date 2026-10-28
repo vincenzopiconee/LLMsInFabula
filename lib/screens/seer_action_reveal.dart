@@ -139,17 +139,35 @@ class _SeerActionRevealState extends State<SeerActionReveal> {
 
                   const Spacer(flex: 3),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: colorScheme.secondary, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25)),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GoBackToSleepScreen(roomId: widget.roomId, uid: widget.uid),
+                  SizedBox(
+                    width: 200,
+                    height: 58,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.secondary,
+                        foregroundColor: colorScheme.onSecondary,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                      );
-                    },
-                    child: Text('Continue', style: textTheme.titleMedium!.copyWith(fontSize: 24, color: colorScheme.onSecondary)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoBackToSleepScreen(roomId: widget.roomId, uid: widget.uid),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Continue',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSecondary,
+                        ),
+                      ),
+                    ),
                   ),
                   const Spacer(flex: 1),        
                 ],

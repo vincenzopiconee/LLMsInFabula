@@ -186,10 +186,29 @@ class _DoctorWakeUpScreenState extends State<DoctorWakeUpScreen> {
                           ),
 
                           const SizedBox(height: 20),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: _isConfirmed ? Colors.grey : colorScheme.secondary, padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25)),
-                            onPressed: (selectedPlayerUid != null && !_isConfirmed) ? _confirmAction : null,
-                            child: Text('Confirm', style: textTheme.titleMedium!.copyWith(fontSize: 24, color: colorScheme.onSecondary)),
+                          SizedBox(
+                            width: 200,
+                            height: 58,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.secondary,
+                                foregroundColor: colorScheme.onSecondary,
+                                disabledBackgroundColor: Colors.grey,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              onPressed: (selectedPlayerUid != null && !_isConfirmed) ? _confirmAction : null,
+                              child: Text(
+                                'Confirm',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 30),
                         ],

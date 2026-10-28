@@ -77,13 +77,14 @@ class _LobbyPageState extends State<LobbyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: colorScheme.primary,
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
+            icon: Icon(Icons.arrow_back, color: colorScheme.secondary),
             onPressed: _callHandleExit,
           ),
           title: const Text("Your Lobby"),
@@ -248,11 +249,30 @@ class _LobbyPageState extends State<LobbyPage> {
                   if (amIAdmin)
                     Column(
                       children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25)),
-                          // --- QUI APPLICHIAMO LA NUOVA CONDIZIONE ---
-                          onPressed: canStartGame ? _startGame : null, 
-                          child: const Text("Start Game", style: TextStyle(fontSize: 25)),
+                        SizedBox(
+                          width: 200,
+                          height: 58,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.secondary,
+                              foregroundColor: colorScheme.onSecondary,
+                              disabledBackgroundColor: Colors.grey,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            // --- QUI APPLICHIAMO LA NUOVA CONDIZIONE ---
+                            onPressed: canStartGame ? _startGame : null, 
+                            child: Text(
+                              "Start Game",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSecondary,
+                              ),
+                            ),
+                          ),
                         ),
                         if (!canStartGame)
                           Padding(

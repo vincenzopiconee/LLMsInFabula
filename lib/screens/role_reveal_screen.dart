@@ -147,23 +147,30 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
 
                     const Spacer(flex: 2),
 
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.secondary, // Colore coerente col tema
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-                        elevation: 5,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isRoleRevealed = true;
-                        });
-                      },
-                      child: Text(
-                        'SHOW ROLE',
-                        style: textTheme.titleMedium!.copyWith(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSecondary,
+                    SizedBox(
+                      width: 200,
+                      height: 58,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.secondary,
+                          foregroundColor: colorScheme.onSecondary,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isRoleRevealed = true;
+                          });
+                        },
+                        child: Text(
+                          'SHOW ROLE',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -267,28 +274,36 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
 
                     const Spacer(flex: 10), 
 
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.secondary,
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                        elevation: 0,
-                      ),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NightTimeScreen(
-                              roomId: widget.roomId,
-                              uid: widget.uid,
-                            ),
+                    SizedBox(
+                      width: 200,
+                      height: 58,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.secondary,
+                          foregroundColor: colorScheme.onSecondary,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                        );
-                      },
-                      child: Text(
-                        'Continue',
-                        style: textTheme.titleMedium!.copyWith(
-                          fontSize: 25,
-                          color: colorScheme.onSecondary,
+                        ),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NightTimeScreen(
+                                roomId: widget.roomId,
+                                uid: widget.uid,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Continue',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSecondary,
+                          ),
                         ),
                       ),
                     ),

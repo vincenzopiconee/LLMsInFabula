@@ -267,16 +267,18 @@ class _VotingTimePageState extends State<VotingTimePage> {
                     const SizedBox(height: 20),
 
                     if (!_hasVoted)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      Center(
                         child: SizedBox(
-                          width: double.infinity,
+                          width: 200,
+                          height: 58,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: selectedPlayerUid == null ? colorScheme.primary : colorScheme.onSecondary, 
                               foregroundColor: selectedPlayerUid == null ? colorScheme.onPrimary : colorScheme.secondary,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
                             onPressed: () {
                               if (selectedPlayerUid == null) {
@@ -285,7 +287,14 @@ class _VotingTimePageState extends State<VotingTimePage> {
                                 _submitVote(selectedPlayerUid!);
                               }
                             },
-                            child: Text(selectedPlayerUid == null ? 'Skip' : 'Confirm', style: textTheme.titleMedium!.copyWith(fontSize: 24, fontWeight: FontWeight.w600, color: selectedPlayerUid == null ? colorScheme.onPrimary : colorScheme.secondary)),
+                            child: Text(
+                              selectedPlayerUid == null ? 'Skip' : 'Confirm',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: selectedPlayerUid == null ? colorScheme.onPrimary : colorScheme.secondary,
+                              ),
+                            ),
                           ),
                         ),
                       )

@@ -8,6 +8,13 @@ class AiStoryGenerator {
   static const String _geminiApiKey =
       'AQ.Ab8RN6Kk8XFs8deZevNu6QFXZow4pcMig73c-fyt5ieJhbna1Q';
 
+  // Modelli ordinati per stabilità e disponibilità (fallback automatico)
+  static const List<String> _candidateModels = [
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3.8-flash',
+  ];
+
   AiStoryGenerator(this.roomRef);
 
   // --- MAPPA DELLE DESCRIZIONI ---
@@ -120,46 +127,66 @@ class AiStoryGenerator {
       Use a language suitable for all audiences without too much complexity.
       ''';
 
-      // 5. CHIAMA GOOGLE AI STUDIO (GEMINI 3.8 FLASH - 100% GRATUITO)
-      final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$_geminiApiKey',
-      );
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': [
-            {
-              'parts': [
-                {'text': prompt}
-              ]
-            }
-          ]
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Gemini API error (${response.statusCode}): ${response.body}');
-      }
-
-      final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      final candidates = jsonResponse['candidates'] as List?;
-      if (candidates == null || candidates.isEmpty) {
-        throw Exception('No candidates returned from Gemini: ${response.body}');
-      }
-
-      final parts = candidates.first['content']?['parts'] as List?;
+      // 5. CHIAMA GOOGLE AI STUDIO (CON FALLBACK AUTOMATICO TRA MODELLI)
       String generatedText = '';
-      if (parts != null) {
-        for (final p in parts) {
-          if (p is Map && p['text'] != null) {
-            generatedText += p['text'].toString();
+      Object? lastError;
+
+      for (final modelName in _candidateModels) {
+        try {
+          final url = Uri.parse(
+            'https://generativelanguage.googleapis.com/v1beta/models/$modelName:generateContent?key=$_geminiApiKey',
+          );
+
+          final response = await http.post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'contents': [
+                {
+                  'parts': [
+                    {'text': prompt}
+                  ]
+                }
+              ]
+            }),
+          );
+
+          if (response.statusCode != 200) {
+            throw Exception(
+                'Gemini API error ($modelName - ${response.statusCode}): ${response.body}');
           }
+
+          final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+          final candidates = jsonResponse['candidates'] as List?;
+          if (candidates == null || candidates.isEmpty) {
+            throw Exception('No candidates returned from Gemini ($modelName): ${response.body}');
+          }
+
+          final parts = candidates.first['content']?['parts'] as List?;
+          if (parts != null) {
+            for (final p in parts) {
+              if (p is Map && p['text'] != null) {
+                generatedText += p['text'].toString();
+              }
+            }
+          }
+
+          if (generatedText.trim().isNotEmpty) {
+            // Generazione riuscita, usciamo dal ciclo di fallback
+            lastError = null;
+            break;
+          }
+        } catch (err) {
+          // ignore: avoid_print
+          print('[AiStoryGenerator] Model $modelName failed: $err. Trying next fallback...');
+          lastError = err;
         }
       }
+
       if (generatedText.trim().isEmpty) {
+        if (lastError != null) {
+          throw lastError;
+        }
         generatedText = "The narrator is speechless...";
       }
 

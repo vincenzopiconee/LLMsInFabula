@@ -233,13 +233,23 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
                     const SizedBox(height: 24),
 
                     // GAME CODE SECTION
-                    Text(
-                      "Game Code",
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onPrimary,
-                        fontSize: 19,
-                      ),
+                    Center(
+                      
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Game Code",
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onPrimary,
+                              fontSize: 25,
+                            ),
+                          ),
+                        ],
+                      )
+                       
                     ),
+                    
                     const SizedBox(height: 16),
 
                     // LARGER DIGIT BOXES

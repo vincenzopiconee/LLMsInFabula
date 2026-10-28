@@ -236,13 +236,38 @@ class _IntroGamePageState extends State<IntroGamePage> {
               });
             }
 
+            final screenWidth = MediaQuery.of(context).size.width;
+            final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
+
             return SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 680),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Column(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    int imageFlex;
+                    int boxFlex;
+
+                    if (constraints.maxWidth >= 1400 && constraints.maxHeight >= 700) {
+                      imageFlex = 62;
+                      boxFlex = 38;
+                    } else if (constraints.maxWidth >= 1000 && constraints.maxHeight >= 620) {
+                      imageFlex = 58;
+                      boxFlex = 42;
+                    } else if (constraints.maxWidth >= 750 && constraints.maxHeight >= 560) {
+                      imageFlex = 50;
+                      boxFlex = 50;
+                    } else if (constraints.maxWidth >= 550 && constraints.maxHeight >= 500) {
+                      imageFlex = 44;
+                      boxFlex = 56;
+                    } else {
+                      imageFlex = 35;
+                      boxFlex = 65;
+                    }
+
+                    final spacerTopFlex = constraints.maxHeight >= 600 ? 4 : 2;
+                    final spacerBottomFlex = constraints.maxHeight >= 600 ? 2 : 1;
+
+                    return Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -255,15 +280,22 @@ class _IntroGamePageState extends State<IntroGamePage> {
                         const SizedBox(height: 12),
 
                         Flexible(
-                          flex: 35, 
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: colorScheme.secondary, width: 3),
-                              image: const DecorationImage(
-                                image: AssetImage('assets/images/screen_intro.jpg'),
-                                fit: BoxFit.cover,
+                          flex: imageFlex, 
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: colorScheme.secondary, width: 3),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: const Image(
+                                    image: AssetImage('assets/images/screen_intro.jpg'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -273,7 +305,7 @@ class _IntroGamePageState extends State<IntroGamePage> {
 
                         // Area Testo / Caricamento
                         Expanded(
-                          flex: 65, 
+                          flex: boxFlex, 
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -358,44 +390,55 @@ class _IntroGamePageState extends State<IntroGamePage> {
                       ),
                     ),
                     
-                    const Spacer(flex: 4),
+                        Spacer(flex: spacerTopFlex),
 
-                    if (amIAdmin)
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.secondary,
-                          disabledBackgroundColor: Colors.grey,
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                          elevation: 0,
-                        ),
-                        // Abilita bottone solo se TUTTO è pronto
-                        onPressed: (!showLoading) 
-                          ? () async {
-                              await ttsManager.stop();
-                              await _roomRef.update({'state': 'reveal_roles'});
-                            } 
-                          : null,
-                        child: Text(
-                          'Continue',
-                          style: textTheme.titleMedium!.copyWith(fontSize: 25, color: colorScheme.onSecondary),
-                        ),
-                      )
-                    else
-                      Text(
-                        "Waiting for the host to continue...",
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    
-                    const Spacer(flex: 2),
-                  ],
+                        if (amIAdmin)
+                          SizedBox(
+                            width: 200,
+                            height: 58,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.secondary,
+                                foregroundColor: colorScheme.onSecondary,
+                                disabledBackgroundColor: Colors.grey,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              // Abilita bottone solo se TUTTO è pronto
+                              onPressed: (!showLoading) 
+                                ? () async {
+                                    await ttsManager.stop();
+                                    await _roomRef.update({'state': 'reveal_roles'});
+                                  } 
+                                : null,
+                              child: Text(
+                                'Continue',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          Text(
+                            "Waiting for the host to continue...",
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        
+                        Spacer(flex: spacerBottomFlex),
+                      ],
+                    );
+                  },
                 ),
               ),
-            ),
-          ),
-        );
+            );
           },
         ),
       )

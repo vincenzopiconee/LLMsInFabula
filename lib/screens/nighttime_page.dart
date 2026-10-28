@@ -213,12 +213,17 @@ class _NightTimeScreenState extends State<NightTimeScreen> {
                       Column(
                         children: [
                           SizedBox(
+                            width: 200,
+                            height: 58,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorScheme.secondary,
+                                foregroundColor: colorScheme.onSecondary,
                                 disabledBackgroundColor: Colors.grey,
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                                elevation: 0,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
                               ),
                               onPressed: allPresent 
                                 ? () async {
@@ -237,8 +242,9 @@ class _NightTimeScreenState extends State<NightTimeScreen> {
                                 : null,
                               child: Text(
                                 'Continue',
-                                style: textTheme.titleMedium!.copyWith(
+                                style: TextStyle(
                                   fontSize: 24,
+                                  fontWeight: FontWeight.bold,
                                   color: colorScheme.onSecondary,
                                 ),
                               ),

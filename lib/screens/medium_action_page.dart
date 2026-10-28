@@ -189,17 +189,30 @@ class _MediumWakeUpScreenState extends State<MediumWakeUpScreen> {
 
                           const SizedBox(height: 20),
 
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: (noDeadPlayers || selectedPlayerUid != null) ? colorScheme.secondary : Colors.grey, 
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25)
-                            ),
-                            onPressed: (noDeadPlayers || (selectedPlayerUid != null && !_isConfirmed)) 
-                                ? (noDeadPlayers ? _skipAction : _confirmAction) 
-                                : null,
-                            child: Text(
-                              noDeadPlayers ? 'Skip' : 'Confirm', 
-                              style: textTheme.titleMedium!.copyWith(fontSize: 24, color: colorScheme.onSecondary)
+                          SizedBox(
+                            width: 200,
+                            height: 58,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: (noDeadPlayers || selectedPlayerUid != null) ? colorScheme.secondary : Colors.grey, 
+                                foregroundColor: colorScheme.onSecondary,
+                                disabledBackgroundColor: Colors.grey,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              onPressed: (noDeadPlayers || (selectedPlayerUid != null && !_isConfirmed)) 
+                                  ? (noDeadPlayers ? _skipAction : _confirmAction) 
+                                  : null,
+                              child: Text(
+                                noDeadPlayers ? 'Skip' : 'Confirm', 
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSecondary,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 30),

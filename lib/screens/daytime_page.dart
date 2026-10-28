@@ -354,19 +354,24 @@ class _DayTimeScreenState extends State<DayTimeScreen> {
                     // --- LOGICA BOTTONE CONTINUE (ADMIN) ---
                     if (isHost)
                       SizedBox(
+                        width: 200,
+                        height: 58,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colorScheme.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                            elevation: 0,
+                            foregroundColor: colorScheme.onPrimary,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           onPressed: _calculateNightResults, // Chiama la funzione di calcolo
                           child: Text(
                             'Continue',
-                            style: textTheme.titleMedium!.copyWith(
+                            style: TextStyle(
                               fontSize: 24,
+                              fontWeight: FontWeight.bold,
                               color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),

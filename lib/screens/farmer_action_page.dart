@@ -243,11 +243,17 @@ class _FarmerWakeUpScreenState extends State<FarmerWakeUpScreen> {
                   const SizedBox(height: 20),
 
                   SizedBox(
+                    width: 200,
+                    height: 58,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.secondary,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 25),
+                        foregroundColor: colorScheme.onSecondary,
+                        disabledBackgroundColor: Colors.grey,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       onPressed: selectedAction == null
                           ? null
@@ -260,8 +266,9 @@ class _FarmerWakeUpScreenState extends State<FarmerWakeUpScreen> {
                             },
                       child: Text(
                         'Confirm',
-                        style: textTheme.titleMedium!.copyWith(
+                        style: TextStyle(
                           fontSize: 24,
+                          fontWeight: FontWeight.bold,
                           color: colorScheme.onSecondary,
                         ),
                       ),
@@ -292,17 +299,23 @@ class _FarmerWakeUpScreenState extends State<FarmerWakeUpScreen> {
                     ),
                   const Spacer(),
                   SizedBox(
+                    width: 200,
+                    height: 58,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.secondary,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 25),
+                        foregroundColor: colorScheme.onSecondary,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       onPressed: _confirmAction,
                       child: Text(
                         'Continue',
-                        style: textTheme.titleMedium!.copyWith(
+                        style: TextStyle(
                           fontSize: 24,
+                          fontWeight: FontWeight.bold,
                           color: colorScheme.onSecondary,
                         ),
                       ),

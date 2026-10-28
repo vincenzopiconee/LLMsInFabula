@@ -320,13 +320,38 @@ class _VotingResultDayState extends State<VotingResultDay> {
               }
             }
 
+            final screenWidth = MediaQuery.of(context).size.width;
+            final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
+
             return SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 680),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Column(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    int imageFlex;
+                    int boxFlex;
+
+                    if (constraints.maxWidth >= 1400 && constraints.maxHeight >= 700) {
+                      imageFlex = 62;
+                      boxFlex = 38;
+                    } else if (constraints.maxWidth >= 1000 && constraints.maxHeight >= 620) {
+                      imageFlex = 58;
+                      boxFlex = 42;
+                    } else if (constraints.maxWidth >= 750 && constraints.maxHeight >= 560) {
+                      imageFlex = 50;
+                      boxFlex = 50;
+                    } else if (constraints.maxWidth >= 550 && constraints.maxHeight >= 500) {
+                      imageFlex = 44;
+                      boxFlex = 56;
+                    } else {
+                      imageFlex = 35;
+                      boxFlex = 65;
+                    }
+
+                    final spacerTopFlex = constraints.maxHeight >= 600 ? 4 : 2;
+                    final spacerBottomFlex = constraints.maxHeight >= 600 ? 2 : 1;
+
+                    return Column(
                       children: [
                         Text(
                           'Results',
@@ -341,22 +366,26 @@ class _VotingResultDayState extends State<VotingResultDay> {
                         const SizedBox(height: 12),
 
                         Flexible(
-                          flex: 35,
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: colorScheme.onSecondary,
-                                width: 3,
-                              ),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: const Image(
-                                image: AssetImage('assets/images/result.png'),
-                                fit: BoxFit.cover,
+                          flex: imageFlex, 
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: colorScheme.onSecondary,
+                                    width: 3,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: const Image(
+                                    image: AssetImage('assets/images/result.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -366,7 +395,7 @@ class _VotingResultDayState extends State<VotingResultDay> {
 
                         // --- BOX LLM SCROLLABILE ---
                         Expanded(
-                          flex: 65, 
+                          flex: boxFlex, 
                           child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -454,28 +483,31 @@ class _VotingResultDayState extends State<VotingResultDay> {
                         ),
                       ),   
 
-                      const Spacer(flex: 4),
+                      Spacer(flex: spacerTopFlex),
 
                       if (isHost)
                         SizedBox(
+                          width: 200,
+                          height: 58,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorScheme.primary,
-                              disabledBackgroundColor: colorScheme.primary.withAlpha(128) , 
-                            
+                              foregroundColor: colorScheme.onPrimary,
+                              disabledBackgroundColor: colorScheme.primary.withAlpha(128), 
                               disabledForegroundColor: colorScheme.onPrimary,
-                            
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                              elevation: 0,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
                             // Abilita bottone solo se tutto è pronto
                             onPressed: (!showLoading) ? _checkGameStatusAndProceed : null, 
                             child: Text(
                               'Continue',
-                              style: textTheme.titleMedium!.copyWith(
+                              style: TextStyle(
                                 fontSize: 24,
+                                fontWeight: FontWeight.bold,
                                 color: colorScheme.onPrimary,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -490,10 +522,10 @@ class _VotingResultDayState extends State<VotingResultDay> {
                           ),
                         ),
 
-                      const Spacer(flex: 2),
+                      Spacer(flex: spacerBottomFlex),
                     ],
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           );

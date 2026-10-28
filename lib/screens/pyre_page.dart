@@ -220,28 +220,35 @@ class _PyreScreenState extends State<PyreScreen> {
               
                         // Bottone Host Continue / Waiting for host
                         if (isHost)
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                              elevation: 0,
-                            ),
-                            onPressed: () async {
-                              await _roomRef.update({
-                                'state': 'pyre_session',
-                                'timer': {
-                                  'startTime': ServerValue.timestamp,
-                                  'duration': 60,
-                                }
-                              });
-                            },
-                            child: Text(
-                              'Continue',
-                              textAlign: TextAlign.center,
-                              style: textTheme.titleMedium!.copyWith(
-                                fontSize: 24,
-                                color: colorScheme.onPrimary, 
-                                fontWeight: FontWeight.w600,
+                          SizedBox(
+                            width: 200,
+                            height: 58,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              onPressed: () async {
+                                await _roomRef.update({
+                                  'state': 'pyre_session',
+                                  'timer': {
+                                    'startTime': ServerValue.timestamp,
+                                    'duration': 60,
+                                  }
+                                });
+                              },
+                              child: Text(
+                                'Continue',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimary,
+                                ),
                               ),
                             ),
                           )
