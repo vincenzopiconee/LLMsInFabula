@@ -82,6 +82,7 @@ class _SeerWakeUpScreenState extends State<SeerWakeUpScreen> {
   void _confirmAction() {
     if (selectedPlayerUid != null) {
       setState(() => _isConfirmed = true);
+      _roomRef.child("night_actions/seer/${widget.uid}").set(selectedPlayerUid);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -110,7 +111,11 @@ class _SeerWakeUpScreenState extends State<SeerWakeUpScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Builder(builder: (ctx) => IconButton(icon: Icon(Icons.menu_book, color: colorScheme.onPrimary), onPressed: () => scaffoldKey.currentState?.openDrawer())), 
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onPrimary,
+            scaffoldKey: scaffoldKey,
+          ), 
           actions: [
             IconButton(icon: Icon(Icons.close, color: colorScheme.onPrimary), onPressed: () => handleExit(context: context, roomRef: _roomRef, uid: widget.uid)),
           ],

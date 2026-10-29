@@ -48,13 +48,10 @@ class _SeerActionRevealState extends State<SeerActionReveal> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onPrimary),
-              onPressed: () {
-                scaffoldKey.currentState?.openDrawer();
-              },
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onPrimary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(

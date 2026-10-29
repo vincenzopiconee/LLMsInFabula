@@ -137,10 +137,11 @@ class RoleRulesDrawer extends StatelessWidget {
       'Seer': 'Each night, you can discover whether a player is a wolf or not.',
       'Medium': 'You can gain additional information about players who died during the game.',
       'Spectator': 'Observe the game without influencing it, you see the events but you can not vote.',
+      'Narrator': 'Guides the villagers and werewolves through the story, overseeing all secret actions and voting outcomes.',
       'Dead': 'You are out of the game, but you can continue to follow the match.',
     };
 
-     return Drawer(
+    return Drawer(
       backgroundColor: colorScheme.primary,
       child: SafeArea(
         child: ListView(
@@ -149,7 +150,7 @@ class RoleRulesDrawer extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Role Rules',
+                'Role Guide',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -167,7 +168,7 @@ class RoleRulesDrawer extends StatelessWidget {
                 height: 36,
                 child: FittedBox(
                   fit: BoxFit.contain,
-                  alignment: Alignment.centerLeft, // tutte ancorate allo stesso punto
+                  alignment: Alignment.centerLeft,
                   child: SvgPicture.asset(
                     'assets/images/werewolf_white.svg',
                     colorFilter: ColorFilter.mode(
@@ -199,7 +200,6 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Farmer',
               color: colorScheme.secondary,
               description: roleDescriptions['Farmer']!,
@@ -222,7 +222,6 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Doctor',
               color: colorScheme.secondary,
               description: roleDescriptions['Doctor']!,
@@ -245,7 +244,6 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Seer',
               color: colorScheme.secondary,
               description: roleDescriptions['Seer']!,
@@ -268,7 +266,6 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Medium',
               color: colorScheme.secondary,
               description: roleDescriptions['Medium']!,
@@ -291,10 +288,29 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Spectator',
               color: colorScheme.secondary,
               description: roleDescriptions['Spectator']!,
+            ),
+
+            _buildRoleExpansionTile(
+              context: context,
+              iconWidget: SizedBox(
+                width: 36,
+                height: 36,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    Icons.mic,
+                    color: colorScheme.secondary,
+                    size: 32,
+                  ),
+                ),
+              ),
+              title: 'Narrator',
+              color: colorScheme.secondary,
+              description: roleDescriptions['Narrator']!,
             ),
 
             _buildRoleExpansionTile(
@@ -314,7 +330,6 @@ class RoleRulesDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               title: 'Dead',
               color: colorScheme.secondary,
               description: roleDescriptions['Dead']!,
@@ -379,6 +394,54 @@ int parseDuration(String timeStr) {
   }
   return 60; // Default fallback
 }
+
+class RoleGuideDrawerButton extends StatelessWidget {
+  final Color? color;
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+
+  const RoleGuideDrawerButton({super.key, this.color, this.scaffoldKey});
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveColor = color ?? Theme.of(context).colorScheme.onPrimary;
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Tooltip(
+        message: "Open Role Guide",
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            if (scaffoldKey != null && scaffoldKey!.currentState != null) {
+              scaffoldKey!.currentState!.openDrawer();
+            } else {
+              Scaffold.of(context).openDrawer();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.menu_book, color: effectiveColor, size: 24),
+                const SizedBox(width: 6),
+                Text(
+                  "Role Guide",
+                  style: TextStyle(
+                    color: effectiveColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 
 

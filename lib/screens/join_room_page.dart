@@ -134,7 +134,8 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
           textCapitalization: TextCapitalization.characters,
           maxLength: 1,
           style: const TextStyle(
-            fontSize: 40,
+            fontSize: 35,
+            fontWeight: FontWeight.bold,
             color: Color(0xFF022F40),
           ),
           decoration: InputDecoration(
@@ -189,9 +190,8 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
             builder: (context, constraints) {
               final screenWidth = constraints.maxWidth;
               final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
-              final isWide = screenWidth >= 600;
-              final boxWidth = isWide ? 80.0 : 68.0;
-              final boxHeight = isWide ? 84.0 : 74.0;
+              final boxWidth = 70.0;
+              final boxHeight = 80.0;
 
               return SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20.0),

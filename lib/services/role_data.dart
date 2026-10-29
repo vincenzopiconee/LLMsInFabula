@@ -52,4 +52,10 @@ final Map<String, RoleData> rolesData = {
     description: 'You are a silent observer, watching from the shadows. You see everything that unfolds, but cannot interfere. Your knowledge dies with you—unless you witness the truth.',
     color: const Color(0xFFAFAFAF), // colorScheme.secondary
   ),
+  'Narrator': RoleData(
+    name: 'Narrator',
+    image: 'assets/images/logo.png',
+    description: 'You are the game Narrator! You oversee all actions and guide the villagers and wolves through day and night.',
+    color: const Color(0xFFD4AF37), // Oro
+  ),
 };

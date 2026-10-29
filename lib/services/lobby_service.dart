@@ -35,6 +35,7 @@ class LobbyService {
     required String llmNarrator,
     required Map<String, int> gameRules,
     required Map<String, String> timeRules,
+    String gameMode = "standard",
     // Nuovo parametro opzionale per forzare il ruolo (es. Spectator)
     String? roleOverride,
   }) async {
@@ -51,6 +52,7 @@ class LobbyService {
       "state": "waiting",
       "creationTime": ServerValue.timestamp,
       "settings": {
+        "gameMode": gameMode,
         "spectatorMode": isSpectator,
         "maxPlayers": maxPlayers,
         "llmNarrator": llmNarrator,
@@ -88,9 +90,26 @@ class LobbyService {
       throw Exception("No room found with code: $cleanRoomId");
     }
 
+    final data = snapshot.value as Map;
+    final players = (data['players'] is Map) ? (data['players'] as Map) : {};
+    final settings = (data['settings'] is Map) ? (data['settings'] as Map) : {};
+    final int maxPlayers = settings['maxPlayers'] ?? 8;
+    final String state = data['state'] ?? 'waiting';
+
+    final bool alreadyInRoom = players.containsKey(uid);
+
+    if (!alreadyInRoom) {
+      if (state != 'waiting') {
+        throw Exception("Game is already in progress!");
+      }
+      if (players.length >= maxPlayers) {
+        throw Exception("Room is full! Maximum number of players reached.");
+      }
+    }
+
     // Creiamo l'oggetto giocatore standard
     final playerData = {
-      "name": nickname, // <--- CORRETTO
+      "name": nickname,
       "alive": true,
       "isHost": false, 
     };

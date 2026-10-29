@@ -5,6 +5,7 @@ import 'package:llm_in_fabula/functions/functions.dart';
 import '../functions/voting_timer.dart';
 import 'voting_result_day.dart'; 
 import 'pyre_page.dart'; 
+import 'classic/classic_voting_result_page.dart'; 
 
 class VotingTimePage extends StatefulWidget {
   final String roomId;
@@ -159,7 +160,7 @@ class _VotingTimePageState extends State<VotingTimePage> {
             playersMap.forEach((key, value) {
               if (value is Map) {
                 final player = Map<String, dynamic>.from(value);
-                if (player['alive'] == true && player['role'] != 'Spectator') {
+                if (player['alive'] == true && player['role'] != 'Spectator' && player['role'] != 'Narrator') {
                   totalAliveCount++;
                   alivePlayersList.add({'uid': key, 'name': player['name']});
                 }
@@ -170,18 +171,35 @@ class _VotingTimePageState extends State<VotingTimePage> {
             votesMap.forEach((voterUid, val) {
               if (playersMap.containsKey(voterUid)) {
                 final voterData = playersMap[voterUid];
-                if (voterData is Map && voterData['alive'] == true) {
+                if (voterData is Map && voterData['alive'] == true && voterData['role'] != 'Narrator') {
                   currentVotesCount++;
                 }
               }
             });
+
+            final settings = Map<String, dynamic>.from(data['settings'] ?? {});
+            final bool isClassic = settings['gameMode'] == 'classic';
 
             // --- NAVIGAZIONE ---
             if (!_hasNavigated) {
               if (currentState == 'voting_results') {
                 _hasNavigated = true;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VotingResultDay(roomId: widget.roomId, uid: widget.uid)));
+                  if (isClassic) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ClassicVotingResultPage(roomId: widget.roomId, uid: widget.uid),
+                      ),
+                    );
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VotingResultDay(roomId: widget.roomId, uid: widget.uid),
+                      ),
+                    );
+                  }
                 });
               } else if (currentState == 'pyre_intro') {
                 // NUOVA NAVIGAZIONE: Pareggio

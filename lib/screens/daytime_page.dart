@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:llm_in_fabula/functions/functions.dart';
 import 'recap_night_page.dart';
+import 'classic/classic_recap_night_page.dart';
 
 class DayTimeScreen extends StatefulWidget {
   final String roomId;
@@ -112,13 +113,10 @@ class _DayTimeScreenState extends State<DayTimeScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onSecondary),
-              onPressed: () {
-                scaffoldKey.currentState?.openDrawer();
-              },
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onSecondary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(
@@ -152,19 +150,34 @@ class _DayTimeScreenState extends State<DayTimeScreen> {
             final String currentState = data['state'] ?? '';
             final bool isHost = (adminId == widget.uid);
 
+            final settings = Map<String, dynamic>.from(data['settings'] ?? {});
+            final bool isClassic = settings['gameMode'] == 'classic';
+
             // --- LOGICA DI NAVIGAZIONE ---
             if (currentState == 'recap_night' && !_hasNavigated) {
               _hasNavigated = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RecapNightPage(
-                      roomId: widget.roomId,
-                      uid: widget.uid,
+                if (isClassic) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ClassicRecapNightPage(
+                        roomId: widget.roomId,
+                        uid: widget.uid,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecapNightPage(
+                        roomId: widget.roomId,
+                        uid: widget.uid,
+                      ),
+                    ),
+                  );
+                }
               });
             }
             // -----------------------------

@@ -51,13 +51,10 @@ class _GoBackToSleepScreenState extends State<GoBackToSleepScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onPrimary),
-              onPressed: () {
-                scaffoldKey.currentState?.openDrawer();
-              },
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onPrimary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(
@@ -115,8 +112,8 @@ class _GoBackToSleepScreenState extends State<GoBackToSleepScreen> {
             playersMap.forEach((key, value) {
               if (value is Map) {
                 final player = Map<String, dynamic>.from(value);
-                // Contiamo solo i vivi e non spettatori
-                if (player['alive'] == true && player['role'] != 'Spectator') {
+                // Contiamo solo i vivi e non spettatori né narratore
+                if (player['alive'] == true && player['role'] != 'Spectator' && player['role'] != 'Narrator') {
                   totalAlivePlayers++;
                   if (player['phaseStatus'] == 'sleeping') {
                     sleepingCount++;

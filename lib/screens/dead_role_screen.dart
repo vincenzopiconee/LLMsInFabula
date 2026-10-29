@@ -195,11 +195,10 @@ class _DeadRoleRevealScreenState extends State<DeadRoleRevealScreen> {
           backgroundColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onSecondary),
-              onPressed: () => scaffoldKey.currentState?.openDrawer(),
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onSecondary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(

@@ -121,7 +121,7 @@ class _DiscussionTimePageState extends State<DiscussionTimePage> {
               playersMap.forEach((key, value) {
                 if (value is Map) {
                   final player = Map<String, dynamic>.from(value);
-                  if (player['alive'] == true && player['role'] != 'Spectator') {
+                  if (player['alive'] == true && player['role'] != 'Spectator' && player['role'] != 'Narrator') {
                     totalAlivePlayers++;
                     if (player['isReadyForVoting'] == true) {
                       readyPlayers++;
@@ -153,120 +153,148 @@ class _DiscussionTimePageState extends State<DiscussionTimePage> {
                 });
               }
 
-              return Column(
-                children: [
-                  const SizedBox(height: 12),
+              final screenWidth = MediaQuery.of(context).size.width;
+              final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: DiscussionTimerWidget(
-                      roomId: widget.roomId, 
-                      uid: widget.uid,
-                      // --- QUI LA SOLUZIONE AL PROBLEMA ---
-                      onTimerEnd: () {
-                        // Se il timer scade, l'Host forza il passaggio alla fase successiva
-                        // resettando il timer nel DB per la VotingPage.
-                        if (isHost) {
-                          _triggerVotingPhase(votingTimeStr);
-                        }
-                      },
-                    ),
-                  ),
+              return SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      int imageFlex;
+                      if (constraints.maxWidth >= 1400 && constraints.maxHeight >= 700) {
+                        imageFlex = 55;
+                      } else if (constraints.maxWidth >= 1000 && constraints.maxHeight >= 620) {
+                        imageFlex = 50;
+                      } else if (constraints.maxWidth >= 750 && constraints.maxHeight >= 560) {
+                        imageFlex = 44;
+                      } else if (constraints.maxWidth >= 550 && constraints.maxHeight >= 500) {
+                        imageFlex = 38;
+                      } else {
+                        imageFlex = 30;
+                      }
 
-                  const SizedBox(height: 25),
+                      return Column(
+                        children: [
+                          const SizedBox(height: 12),
 
-                  Text(
-                    'Discussion Time',
-                    style: textTheme.titleLarge!.copyWith(
-                      fontSize: 45,
-                      color: colorScheme.onSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                
-                  const SizedBox(height: 15),
-                  
-                  Container(
-                      width: 280,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,            // niente rettangolo pieno
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: colorScheme.onSecondary,
-                          width: 3,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: const Image(
-                          image: AssetImage('assets/images/discussion.png'),
-                          fit: BoxFit.cover,                  // riempie senza lasciare bordi
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 25),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 60.0),
-                    child: Text(
-                      'Discuss among yourselves to find the werewolves',
-                      style: textTheme.titleLarge!.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                  const Spacer(flex: 2),
-
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 220,
-                        height: 58,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _iAmReady ? colorScheme.secondary : colorScheme.primary, 
-                            foregroundColor: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
-                            disabledBackgroundColor: colorScheme.secondary,
-                            disabledForegroundColor: colorScheme.primary,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: DiscussionTimerWidget(
+                              roomId: widget.roomId, 
+                              uid: widget.uid,
+                              onTimerEnd: () {
+                                if (isHost) {
+                                  _triggerVotingPhase(votingTimeStr);
+                                }
+                              },
                             ),
                           ),
-                          onPressed: _iAmReady ? null : _setReadyForVoting,
-                          child: Text(
-                            _iAmReady ? 'Waiting others...' : 'Go to Voting',
-                            style: TextStyle(
-                              fontSize: 22,
+
+                          const SizedBox(height: 20),
+
+                          Text(
+                            'Discussion Time',
+                            style: textTheme.titleLarge!.copyWith(
+                              fontSize: 40,
+                              color: colorScheme.onSecondary,
                               fontWeight: FontWeight.bold,
-                              color: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        
+                          const SizedBox(height: 12),
+                          
+                          Flexible(
+                            flex: imageFlex,
+                            child: Center(
+                              child: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: colorScheme.onSecondary,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: const Image(
+                                      image: AssetImage('assets/images/discussion.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 10),
-                      
-                      Text(
-                        "$readyPlayers / $totalAlivePlayers ready",
-                        style: TextStyle(
-                          color: colorScheme.onSecondary, 
-                          fontStyle: FontStyle.italic,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
 
-                  const SizedBox(height: 20),
-                ],
+                          const SizedBox(height: 16),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                            child: Text(
+                              'Discuss among yourselves to find the werewolves',
+                              style: textTheme.titleLarge!.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: colorScheme.onSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+
+                          const Spacer(flex: 2),
+
+                          Column(
+                            children: [
+                              SizedBox(
+                                width: 220,
+                                height: 58,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _iAmReady ? colorScheme.secondary : colorScheme.primary, 
+                                    foregroundColor: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
+                                    disabledBackgroundColor: colorScheme.secondary,
+                                    disabledForegroundColor: colorScheme.primary,
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  onPressed: _iAmReady ? null : _setReadyForVoting,
+                                  child: Text(
+                                    _iAmReady ? 'Waiting others...' : 'Go to Voting',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: _iAmReady ? colorScheme.primary : colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 10),
+                              
+                              Text(
+                                "$readyPlayers / $totalAlivePlayers ready",
+                                style: TextStyle(
+                                  color: colorScheme.onSecondary, 
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               );
             }
           ),

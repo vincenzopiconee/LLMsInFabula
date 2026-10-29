@@ -11,6 +11,7 @@ import 'medium_action_page.dart';
 import 'farmer_action_page.dart';
 import 'spectator_game_screen_night.dart';
 import 'dead_role_screen.dart'; 
+import 'classic/classic_narrator_night_page.dart'; 
 
 class NightTimeScreen extends StatefulWidget {
   final String roomId;
@@ -56,13 +57,10 @@ class _NightTimeScreenState extends State<NightTimeScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onPrimary),
-              onPressed: () {
-                scaffoldKey.currentState?.openDrawer();
-              },
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onPrimary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(
@@ -132,6 +130,7 @@ class _NightTimeScreenState extends State<NightTimeScreen> {
                     case 'Doctor': targetPage = DoctorWakeUpScreen(roomId: widget.roomId, uid: widget.uid); break;
                     case 'Medium': targetPage = MediumWakeUpScreen(roomId: widget.roomId, uid: widget.uid); break;
                     case 'Spectator': targetPage = SpectatorFormScreeNight(roomId: widget.roomId, uid: widget.uid); break;
+                    case 'Narrator': targetPage = ClassicNarratorNightPage(roomId: widget.roomId, uid: widget.uid); break;
                     case 'Farmer': default: targetPage = FarmerWakeUpScreen(roomId: widget.roomId, uid: widget.uid); break;
                   }
                 }

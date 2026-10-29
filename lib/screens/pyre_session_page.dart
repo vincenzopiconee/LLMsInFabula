@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:llm_in_fabula/functions/functions.dart';
 import '../functions/pyre_timer.dart';
 import 'voting_result_day.dart';
+import 'classic/classic_voting_result_page.dart';
 
 class PyreSessionPage extends StatefulWidget {
   final String roomId;
@@ -64,7 +65,23 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
       // 1. Navigazione
       if (currentState == 'voting_results' && !_hasNavigated && mounted) {
         _hasNavigated = true;
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VotingResultDay(roomId: widget.roomId, uid: widget.uid)));
+        final settings = Map<String, dynamic>.from(data['settings'] ?? {});
+        final bool isClassic = settings['gameMode'] == 'classic';
+        if (isClassic) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClassicVotingResultPage(roomId: widget.roomId, uid: widget.uid),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VotingResultDay(roomId: widget.roomId, uid: widget.uid),
+            ),
+          );
+        }
         return;
       }
 
@@ -138,7 +155,7 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
 
     int totalAliveCount = 0;
     playersMap.forEach((key, value) {
-      if (value is Map && value['alive'] == true && value['role'] != 'Spectator') {
+      if (value is Map && value['alive'] == true && value['role'] != 'Spectator' && value['role'] != 'Narrator') {
         totalAliveCount++;
       }
     });
@@ -147,7 +164,7 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
     votesMap.forEach((voterUid, val) {
       if (playersMap.containsKey(voterUid)) {
         final voterData = playersMap[voterUid];
-        if (voterData is Map && voterData['alive'] == true) {
+        if (voterData is Map && voterData['alive'] == true && voterData['role'] != 'Narrator') {
           currentVotesCount++;
         }
       }
@@ -216,11 +233,10 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.menu_book, color: colorScheme.onSecondary),
-              onPressed: () => scaffoldKey.currentState?.openDrawer(),
-            ),
+          leadingWidth: 150,
+          leading: RoleGuideDrawerButton(
+            color: colorScheme.onSecondary,
+            scaffoldKey: scaffoldKey,
           ), 
           actions: [
             IconButton(
@@ -249,7 +265,7 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
                   // Calcolo per la UI (conteggio voti)
                   int totalAliveCount = 0;
                   playersMap.forEach((key, value) {
-                    if (value is Map && value['alive'] == true && value['role'] != 'Spectator') {
+                    if (value is Map && value['alive'] == true && value['role'] != 'Spectator' && value['role'] != 'Narrator') {
                       totalAliveCount++;
                     }
                   });
@@ -258,7 +274,7 @@ class _PyreSessionPageState extends State<PyreSessionPage> {
                   votesMap.forEach((voterUid, val) {
                     if (playersMap.containsKey(voterUid)) {
                       final voterData = playersMap[voterUid];
-                      if (voterData is Map && voterData['alive'] == true) {
+                      if (voterData is Map && voterData['alive'] == true && voterData['role'] != 'Narrator') {
                         currentVotesCount++;
                       }
                     }

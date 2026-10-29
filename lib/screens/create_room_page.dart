@@ -16,10 +16,15 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   final LobbyService _lobbyService = LobbyService();
 
   // --- State Variables ---
+  bool _isClassicMode = false;
   bool _isSpectator = false;
   
   int _numPlayers = 4;
-  final List<int> _playerCountOptions = List.generate(27, (index) => index + 4); 
+  List<int> get _playerCountOptions => _isClassicMode
+      ? List.generate(26, (index) => index + 5)
+      : List.generate(27, (index) => index + 4);
+
+  int get _effectiveRolePlayers => _isClassicMode ? (_numPlayers - 1) : _numPlayers; 
 
   // Stato per LLM Narrator (Omissis... lista narratori invariata)
   final List<Map<String, dynamic>> _narratorList = [
@@ -87,20 +92,22 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     int doctors = 0; 
     int medium = 0;
 
-    if (totalPlayers >= 8) {
+    final int rolePlayers = _isClassicMode ? (totalPlayers - 1) : totalPlayers;
+
+    if (rolePlayers >= 8) {
       wolves = 2;
       seers = 1;
       doctors = 1; 
       medium = 0;
     }
-    if (totalPlayers >= 10) medium = 1;
-    if (totalPlayers >= 13) wolves = 3;
-    if (totalPlayers >= 17) doctors = 2;
-    if (totalPlayers >= 18) wolves = 4;
-    if (totalPlayers >= 21) seers = 2;
-    if (totalPlayers >= 23) wolves = 5;
-    if (totalPlayers >= 26) medium = 2;
-    if (totalPlayers >= 28) wolves = 6;
+    if (rolePlayers >= 10) medium = 1;
+    if (rolePlayers >= 13) wolves = 3;
+    if (rolePlayers >= 17) doctors = 2;
+    if (rolePlayers >= 18) wolves = 4;
+    if (rolePlayers >= 21) seers = 2;
+    if (rolePlayers >= 23) wolves = 5;
+    if (rolePlayers >= 26) medium = 2;
+    if (rolePlayers >= 28) wolves = 6;
 
     setState(() {
       _gameRoles["Wolves"] = wolves;
@@ -116,8 +123,8 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   /// Funzione per ridurre i ruoli se il totale supera i giocatori (usata quando si cambia il numero totale di giocatori)
   void _checkAndCapRoles() {
     int currentSpecialCount = _gameRoles.values.reduce((a, b) => a + b);
-    if (currentSpecialCount > _numPlayers) {
-      int excess = currentSpecialCount - _numPlayers;
+    if (currentSpecialCount > _effectiveRolePlayers) {
+      int excess = currentSpecialCount - _effectiveRolePlayers;
       // Riduciamo prima i ruoli opzionali
       for (String key in ["Medium", "Doctors", "Seers", "Wolves"]) {
         if (excess <= 0) break;
@@ -160,7 +167,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     });
 
     // Spazio rimanente = Totale Giocatori - Altri Ruoli
-    int remainingSpace = _numPlayers - otherRolesCount;
+    int remainingSpace = _effectiveRolePlayers - otherRolesCount;
     
     // Non può essere negativo
     return remainingSpace < 0 ? 0 : remainingSpace;
@@ -206,6 +213,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
           "voting": _votingTime,
           'night': _nightTime
         },
+        gameMode: _isClassicMode ? "classic" : "standard",
         roleOverride: myRole,
       );
 
@@ -257,7 +265,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
     final horizontalPadding = screenWidth > 900 ? 64.0 : (screenWidth > 600 ? 40.0 : 24.0);
 
     int specialRolesCount = _gameRoles.values.reduce((a, b) => a + b);
-    int villagers = _numPlayers - specialRolesCount;
+    int villagers = _effectiveRolePlayers - specialRolesCount;
     // Evitiamo numeri negativi visivi se la logica sta aggiornando
     if (villagers < 0) villagers = 0;
 
@@ -281,6 +289,8 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                   padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 12.0),
                   children: [
                     const SizedBox(height: 12),
+                    _buildClassicModeSwitch(context),
+                    const SizedBox(height: 12),
                     _buildSpectatorSwitch(context),
                     const SizedBox(height: 20),
                     _buildNicknameField(context),
@@ -290,12 +300,15 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 20),
                       child: Text(
-                        "Farmers: $villagers",
+                        "Farmers: $villagers${_isClassicMode ? ' (+ 1 Narrator)' : ''}",
                         style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic),
                       ),
                     ),
 
-                    _buildNarratorExpansionTile(context),
+                    if (_isClassicMode)
+                      _buildClassicModeInfo(context)
+                    else
+                      _buildNarratorExpansionTile(context),
                     const SizedBox(height: 20),
                     _buildGameRulesExpansionTile(context),
                     const SizedBox(height: 20),
@@ -309,6 +322,99 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _onClassicModeChanged(bool val) {
+    setState(() {
+      _isClassicMode = val;
+      if (_isClassicMode && _numPlayers < 5) {
+        _numPlayers = 5;
+      }
+      _calculateBalancedRoles(_numPlayers);
+    });
+  }
+
+  Widget _buildClassicModeSwitch(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Classic Game",
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontSize: 19,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                "Play with a human Narrator (No AI)",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+          Switch(
+            value: _isClassicMode,
+            onChanged: _onClassicModeChanged,
+            activeTrackColor: theme.colorScheme.secondary,
+            activeThumbColor: theme.colorScheme.primary,
+            inactiveTrackColor: theme.colorScheme.primary,
+            inactiveThumbColor: theme.colorScheme.secondary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassicModeInfo(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondary.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.secondary, width: 2),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.record_voice_over, color: theme.colorScheme.secondary, size: 28),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Classic Mode: Human Narrator",
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimary,
+                    fontSize: 17,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "One player will be chosen as the Narrator in the lobby.\nTotal players: $_numPlayers (1 Narrator + $_effectiveRolePlayers role players).",
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
+                    fontSize: 14,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -562,7 +668,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(10),
