@@ -18,6 +18,29 @@ Unlike online deduction platforms that isolate players behind voice chat and dig
 
 ---
 
+## Table of Contents
+
+- [Executive Summary](#executive-summary)
+- [System Architecture](#system-architecture)
+  - [Frontend and Client Layer](#1-frontend-and-client-layer-flutter--dart)
+  - [Realtime Synchronization and Infrastructure](#2-realtime-synchronization-and-infrastructure-firebase)
+  - [Generative Narrative Engine](#3-generative-narrative-engine-google-gemini-flash)
+  - [Client-Side Text-to-Speech](#4-client-side-text-to-speech-web-speech-api)
+- [Game Modes and Modalities](#game-modes-and-modalities)
+  - [Standard Mode (Autonomous AI Narrator)](#1-standard-mode-autonomous-ai-narrator)
+  - [Classic Mode (Human Narrator Dashboard)](#2-classic-mode-human-narrator-dashboard)
+  - [Spectator Mode](#3-spectator-mode)
+- [Roles and Fair Play Mechanics](#roles-and-fair-play-mechanics)
+  - [The Dummy Tasks Anti-Peeking Mechanic](#the-dummy-tasks-anti-peeking-mechanic)
+- [User Flow and Experience (UX)](#user-flow-and-experience-ux)
+- [Tech Stack and Dependencies](#tech-stack-and-dependencies)
+- [Live Application and How to Play](#live-application-and-how-to-play)
+- [Academic Origins and Ongoing Development](#academic-origins-and-ongoing-development)
+- [Collaborators](#collaborators)
+- [License](#license)
+
+---
+
 ## System Architecture
 
 The application is built on a **reactive, event-driven architecture** centered around a distributed Finite State Machine (FSM) synchronized in real-time across connected clients via Firebase Realtime Database.
@@ -116,7 +139,7 @@ A dedicated observer screen designed for teachers, facilitators, or event organi
 | **Farmer** | Villagers | Dummy Tasks | Regular villager with no active power; participates in night micro-tasks to mask special roles. |
 | **Spectator** | Neutral | None | Observes game state without participating. |
 
-### The "Dummy Tasks" Anti-Peeking Mechanic
+### The Dummy Tasks Anti-Peeking Mechanic
 In physical deduction games assisted by personal mobile devices, players can often deduce active roles simply by noticing who is tapping their phone screen during the night phase while passive villagers sit idle.
 
 **LLMs in Fabula eliminates this vulnerability through Dummy Tasks**:
@@ -234,7 +257,6 @@ The initial academic prototype was developed in collaboration with:
 
 * [Filippo Galletta](https://github.com/filippogalletta)
 * [Niccolo Sobrero](https://github.com/niccolosobrero)
-* [Alessia Beatrice Viani](https://github.com/alessiabeatriceviani)
 
 *(Politecnico di Milano — Advanced User Interfaces course)*
 
