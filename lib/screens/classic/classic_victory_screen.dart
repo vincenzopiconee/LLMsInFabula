@@ -47,7 +47,6 @@ class ClassicVictoryScreen extends StatelessWidget {
             final myRole = playersMap[uid]?['role'] ?? 'Farmer';
             final bool isNarrator = myRole == 'Narrator';
 
-            final Color primaryColor = isFarmers ? colorScheme.secondary : colorScheme.primary;
             final Color contrastColor = isFarmers ? colorScheme.primary : colorScheme.secondary;
             final Color textColor = isFarmers ? colorScheme.onSecondary : colorScheme.onPrimary;
 

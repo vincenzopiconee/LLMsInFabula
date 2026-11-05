@@ -17,6 +17,8 @@ doc/api/
 
 # dotenv environment variables file
 .env*
+!.env.example
+
 
 # Avoid committing generated Javascript files:
 *.dart.js
@@ -267,5 +269,10 @@ fabric.properties
 ### AndroidStudio Patch ###
 
 !/gradle/wrapper/gradle-wrapper.jar
+
+# macOS
+.DS_Store
+**/.DS_Store
+
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,flutter,firebase,androidstudio,xcode,dart

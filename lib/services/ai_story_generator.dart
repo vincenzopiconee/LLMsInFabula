@@ -5,8 +5,7 @@ import 'package:http/http.dart' as http;
 class AiStoryGenerator {
   final DatabaseReference roomRef;
 
-  static const String _geminiApiKey =
-      'AQ.Ab8RN6Kk8XFs8deZevNu6QFXZow4pcMig73c-fyt5ieJhbna1Q';
+  static const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
   // Modelli ordinati per stabilità e disponibilità (fallback automatico)
   static const List<String> _candidateModels = [
@@ -128,6 +127,12 @@ class AiStoryGenerator {
       ''';
 
       // 5. CHIAMA GOOGLE AI STUDIO (CON FALLBACK AUTOMATICO TRA MODELLI)
+      if (_geminiApiKey.isEmpty) {
+        throw Exception(
+          'GEMINI_API_KEY is not configured. Please supply it via --dart-define-from-file=.env',
+        );
+      }
+
       String generatedText = '';
       Object? lastError;
 
